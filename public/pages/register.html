@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <link rel="stylesheet" href="../Styles/main.css">
+    <link rel="stylesheet" href="../Styles/login.css">
     <title>Gamer's Garden Home</title>
 </head>
 <body>
@@ -19,6 +20,23 @@
     </div>
 
     <div id="main">
+        <form id="login">
+            <label for = "Username">Username</label>
+            <input type="text" name="Username" value="" required></input><br>
+            <label for="Password">Password</label>
+            <input type="password" name="Password" value="" required><br>
+            <label for="ConfirmPassword">Confirm Password</label>
+            <input type="password" name="ConfirmPassword" value="" required><br>
+            <label for = "Firstname">Firstname</label>
+            <input type="text" name="Firstname" value="" required></input><br>
+            <label for = "Lastname">Lastname</label>
+            <input type="text" name="Lastname" value="" required></input><br>
+            <label for = "Email">Email</label>
+            <input type="text" name="Email" value="" required></input><br>
+            <p>Have an account already? Click this link to <a href="/login">login.
+            </a></p>
+            <input type="submit">
+          </form>
     </div>
 </body>
 </html>
