@@ -76,6 +76,33 @@ app.post('/register', async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
 }});
 
+app.post('/login', async (req, res) => {
+  // Getting the information from the form
+  const { Username, Password } = req.body;
+
+  try {
+    // Tries to authenticate the user with the given credentials
+    const user = await loginUser({ Username, Password });
+
+    // If login is successful, proceed with login logic (e.g., session creation, token generation)
+    // This example assumes loginUser will return user details on success
+    // Be mindful of what user details you send back!
+    res.status(200).json({ 
+      success: true, 
+      message: "Login successful!", 
+      user: { Username: user.username, Email: user.email } // Example response, adjust as needed
+    });
+
+  } catch (err) {
+    // Catches any error if any occur and sends a feedback message
+    console.error('Error logging in:', err);
+
+    // It's good practice to not disclose whether it was the username or password that was incorrect
+    // to avoid giving potential attackers too much information.
+    res.status(401).json({ success: false, message: "Username or password is incorrect." });
+  }
+});
+
 /*
 All Get requests regarding webpages are in this section.
 Follow same convention for any new webpages added.

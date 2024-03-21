@@ -119,6 +119,7 @@ async function loginUser({ Username, Password }) {
       const isMatch = await bcrypt.compare(Password, user.password);
       if (isMatch) {
         // Passwords match
+        console.log("Login Sucesful");
         return { success: true, message: "Login successful!", user: { Username: user.username, Email: user.email } };
       } else {
         // Passwords do not match
