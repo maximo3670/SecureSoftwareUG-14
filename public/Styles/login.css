@@ -1,0 +1,46 @@
+#login{
+  margin-top: 50px;
+  padding: 10px;
+  background: var(--tri);
+  width: 100%;
+  height: 40%;
+  border: 3px solid var(--sec);
+  border-radius: 5px;
+  display: inline-block;
+}
+
+#login input{
+    margin: 5px;
+}
+
+#login label{
+  width: 200px;
+}
+
+#login input[type="text"],input[type="password"]{
+  width: 100%;
+  height: 25px;
+}
+
+#login input[type="submit"] {
+  width: 200px;
+  height: 30px;
+  padding: 15px; /* Remove padding to prevent extra space */
+  margin: 0 auto; /* Center horizontally */
+  position: relative;
+  border-radius: 10px;
+  border: 5px solid var(--sec)!important;
+  box-shadow: 0 0 0 5px #4d4d4d;
+  font-size: inherit; /* Maintain the button's font size */
+  text-align: center; /* Center the text horizontally */
+  font-weight: bolder;
+  line-height: 1px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: block; /* Ensure block-level element behavior */
+}
+
+#login input[type="submit"]:hover{
+  border: 5px solid #4d4d4d!important;
+  box-shadow: 0 0 0 5px var(--sec);
+}
