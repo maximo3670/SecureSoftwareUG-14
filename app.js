@@ -64,6 +64,10 @@ app.get('/news', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/pages/news.html'));
 });
 
+app.get('/register', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/pages/register.html'));
+});
+
 //Webpage not found so catches the 404 error and outputs a custom response
 app.use((req, res, next) => {
   res.status(404).send("ERROR: 404 \nWebpage does not exist");
