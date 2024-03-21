@@ -14,7 +14,7 @@ Description:
 */
 
 const express = require('express');
-const { initializeDb, registerUser } = require('./db');
+const { initializeDb, registerUser, loginUser } = require('./db');
 const bodyParser = require('body-parser');
 const path = require('path');
 const app = express();
