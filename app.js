@@ -14,31 +14,67 @@ Description:
 */
 
 const express = require('express');
-const { initializeDb } = require('./db');
+const { initializeDb, registerUser } = require('./db');
+const bodyParser = require('body-parser');
 const path = require('path');
 const app = express();
 const port = 3000;
-
-//EXAMPLE FOR WHEN WE IMPLEMENT IT
-//const { getUsers, addUser } = require('./queries');
-
+app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
 /*
+This post request is for registering a new user. It gets the information from the 
+registration handler upon a request and deals with the information accordingly.
 
-DATABASE QUERY EXAMPLE
+It first runs the validatePassword function which checks whether the password meets
+the requirements. These requirements are:
+minimum eight characters, at least one letter, one number and one special character
+This adds a higher level of security on passwords
 
-app.get('/users', async (req, res) => {
-  const users = await getUsers();
-  res.json(users);
-});
+It checks if the passwords match and if not sends an error message back.
 
-app.post('/users', async (req, res) => {
-  const { username, password, email } = req.body;
-  const newUser = await addUser(username, password, email);
-  res.status(201).json(newUser);
-}); 
+otherwise it runs a function within the db.js script which writes to the database.
+if the function is successful it sends a success message back. otherwise it sends an error
+message back. Specifically if a username or password dont exist
 */
+function validatePassword(password) {
+  // This is a regex (regular expression) to check requirements of a password
+  // checks for minimum eight characters, at least one letter, one number and one special character
+  const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+  return regex.test(password);
+}
+
+app.post('/register', async (req, res) => {
+  //Getting the information from the form
+  const { Username, Password, ConfirmPassword, Firstname, Lastname, Email } = req.body;
+
+  //Check to see if the password meets the requirements
+  if (!validatePassword(Password)) {
+    return res.status(400).json({
+        success: false,
+        message: 'Password does not meet complexity requirements. It must be at least 8 characters long, contain at least one letter, one number, and one special character.'
+    });
+  }
+  //Checking if passwords match
+  if (Password !== ConfirmPassword) {
+    return res.status(400).json({ success: false, message: 'Passwords do not match.' });
+  }
+
+  try {
+
+    //trys to store the data to the database
+    await registerUser({ Username, Password, Firstname, Lastname, Email });
+    res.status(201).json({ success: true, message: "Registration successful!" });
+  } catch (err) {
+
+    //Catches any error if any occur and sends a feedback message
+    if (err.message === 'Username or email already exists.') {
+      return res.status(409).json({ success: false, message: err.message });
+    }
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
+}});
 
 /*
 All Get requests regarding webpages are in this section.
