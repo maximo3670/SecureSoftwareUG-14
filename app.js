@@ -106,8 +106,8 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/pages/index.html'));
 });
 
-app.get('/forums', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/pages/forums.html'));
+app.get('/blogs', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/pages/blogs.html'));
 });
 
 app.get('/account', (req, res) => {
