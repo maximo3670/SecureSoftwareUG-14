@@ -105,6 +105,34 @@ async function registerUser({ Username, Password, Firstname, Lastname, Email }) 
   }
 }
 
-//exporting the functions
-module.exports = { pool, initializeDb, registerUser };
+//jon
+async function loginUser({ Username, Password }) {
+  try {
+    // Assume Username can be either a username or an email for login purposes
+    const userQuery = 'SELECT * FROM securesoftware.users WHERE username = $1 OR email = $1;';
+    const userResult = await pool.query(userQuery, [Username]);
 
+    if (userResult.rowCount > 0) {
+      const user = userResult.rows[0];
+
+      // Compare the provided password with the hashed password in the database
+      const isMatch = await bcrypt.compare(Password, user.password);
+      if (isMatch) {
+        // Passwords match
+        return { success: true, message: "Login successful!", user: { Username: user.username, Email: user.email } };
+      } else {
+        // Passwords do not match
+        throw new Error('Username or password does not match.');
+      }
+    } else {
+      // No user found with the provided username/email
+      throw new Error('Username or password does not match.');
+    }
+  } catch (err) {
+    console.error('Error in loginUser:', err);
+    throw err;
+  }
+}
+
+//exporting the functions
+module.exports = { pool, initializeDb, registerUser,  loginUser};
