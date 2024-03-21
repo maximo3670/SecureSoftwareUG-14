@@ -32,8 +32,7 @@ document.getElementById("login").addEventListener("submit", function(event){
         document.getElementById("feedbackMessage").textContent = "Login successful!";
         document.getElementById("feedbackMessage").style.color = "green"; // Change color to green for success
 
-        // Optionally, redirect the user to another page upon successful login
-        window.location.href = '/'; // Adjust the redirect URL as needed
+        window.location.href = '/'; 
       } else {
 
         // If success flag is false, there is a message which corresponds to the error
