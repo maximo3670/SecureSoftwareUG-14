@@ -1,0 +1,49 @@
+#blog{
+    margin-top: 50px;
+    padding: 10px;
+    background: var(--tri);
+    width: 100%;
+    height: auto; 
+    border: 3px solid var(--sec);
+    border-radius: 5px;
+    display: block; 
+  }
+  
+  #blog input, #blog textarea{ 
+      margin: 5px;
+      width: calc(100% - 10px); 
+  }
+  
+  #blog label{
+    display: block; 
+    margin: 5px;
+  }
+  
+  #blog input[type="text"], #blog textarea{
+    width: 100%;
+    box-sizing: border-box; 
+  }
+  
+  #blog input[type="submit"] {
+    width: 200px;
+    height: 30px;
+    padding: 15px;
+    margin: 0 auto;
+    display: block;
+    position: relative;
+    border-radius: 10px;
+    border: 5px solid var(--sec)!important;
+    box-shadow: 0 0 0 5px #4d4d4d;
+    font-size: inherit;
+    text-align: center;
+    font-weight: bolder;
+    line-height: 1px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+  
+  #blog input[type="submit"]:hover{
+    border: 5px solid #4d4d4d!important;
+    box-shadow: 0 0 0 5px var(--sec);
+  }
+  

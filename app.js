@@ -14,7 +14,7 @@ Description:
 */
 
 const express = require('express');
-const { initializeDb, registerUser, loginUser } = require('./db');
+const { initializeDb, registerUser, loginUser, writeBlog } = require('./db');
 const bodyParser = require('body-parser');
 const path = require('path');
 const app = express();
@@ -76,6 +76,21 @@ app.post('/register', async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
 }});
 
+app.post('/writeblog', async (req, res) => {
+
+  const { title, text } = req.body;
+
+  try{
+
+      await writeBlog({ title, text });
+      res.status(201).json({ success: true, message: "Blog uploaded successfully!" });
+
+  } catch(err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+})
+
 app.post('/login', async (req, res) => {
   // Getting the information from the form
   const { Username, Password } = req.body;
@@ -108,6 +123,10 @@ app.get('/', (req, res) => {
 
 app.get('/blogs', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/pages/blogs.html'));
+});
+
+app.get('/writeblog', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/pages/writeblog.html'));
 });
 
 app.get('/account', (req, res) => {

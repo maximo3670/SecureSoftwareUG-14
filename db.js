@@ -38,7 +38,7 @@ async function initializeDb() {
     
         //Creating the tables if not already existing
         //Users table
-        const queryText = `
+        const usersTableQuery = `
           CREATE TABLE IF NOT EXISTS ${schemaName}.users (
             id SERIAL PRIMARY KEY,
             username VARCHAR(255) UNIQUE NOT NULL,
@@ -49,12 +49,25 @@ async function initializeDb() {
           );
         `;
     
-        await client.query(queryText);
+        await client.query(usersTableQuery);
+
+        //blog table
+        const blogTableQuery = `
+        CREATE TABLE IF NOT EXISTS ${schemaName}.blogs (
+          blogID SERIAL PRIMARY KEY,
+          userID INTEGER NOT NULL,
+          title VARCHAR(255) NOT NULL,
+          text TEXT NOT NULL,
+          FOREIGN KEY (userID) REFERENCES ${schemaName}.users(id)
+        );
+      `;
+
+      await client.query(blogTableQuery);
 
         //Error handling
-        console.log('Schema and users table created successfully.');
+        console.log('Schema and tables created successfully.');
       } catch (err) {
-        console.error('Error creating schema or users table:', err);
+        console.error('Error creating schema or tables:', err);
       } finally {
         client.release();
       }
@@ -135,5 +148,24 @@ async function loginUser({ Username, Password }) {
   }
 }
 
+async function writeBlog({ title, text }){
+  try {
+ 
+    const queryText = `
+      INSERT INTO securesoftware.blogs (userID, title, text)
+      VALUES ($1, $2, $3)`; 
+
+    const userID = 1;
+    // Execute the query
+    const values = [userID, title, text];
+    await pool.query(queryText, values);
+
+    console.log('Blog post created successfully');
+  } catch (err) {
+    console.error('Error writing blog:', err);
+    throw err; // Re-throw the error to be handled by the caller
+  }
+}
+
 //exporting the functions
-module.exports = { pool, initializeDb, registerUser,  loginUser};
+module.exports = { pool, initializeDb, registerUser,  loginUser, writeBlog};
