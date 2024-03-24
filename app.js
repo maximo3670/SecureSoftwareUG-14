@@ -14,11 +14,16 @@ Description:
 */
 
 const express = require('express');
-const { initializeDb, registerUser, loginUser, writeBlog } = require('./db');
+const { initializeDb, registerUser, loginUser, writeBlog, readBlogs } = require('./db');
 const bodyParser = require('body-parser');
 const path = require('path');
 const app = express();
 const port = 3000;
+//Package to prevent XSS attacks
+//DOM Purify
+const { JSDOM } = require('jsdom');
+const window = (new JSDOM('')).window;
+const DOMPurify = require('dompurify')(window);
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -47,17 +52,25 @@ function validatePassword(password) {
 
 app.post('/register', async (req, res) => {
   //Getting the information from the form
-  const { Username, Password, ConfirmPassword, Firstname, Lastname, Email } = req.body;
+  let { Username, Password, ConfirmPassword, Firstname, Lastname, Email } = req.body;
+
+  //XSS protection
+  Username = DOMPurify.sanitize(Username);
+  Password = DOMPurify.sanitize(Password);
+  ConfirmPassword = DOMPurify.sanitize(ConfirmPassword);
+  Firstname = DOMPurify.sanitize(Firstname);
+  Lastname = DOMPurify.sanitize(Lastname);
+  Email = DOMPurify.sanitize(Email);
 
   //Check to see if the password meets the requirements
-  if (!validatePassword(Password)) {
+  if (!validatePassword(cleanPassword)) {
     return res.status(400).json({
         success: false,
         message: 'Password does not meet complexity requirements. It must be at least 8 characters long, contain at least one letter, one number, and one special character.'
     });
   }
   //Checking if passwords match
-  if (Password !== ConfirmPassword) {
+  if (cleanPassword !== cleanConfirmPassword) {
     return res.status(400).json({ success: false, message: 'Passwords do not match.' });
   }
 
@@ -78,7 +91,11 @@ app.post('/register', async (req, res) => {
 
 app.post('/writeblog', async (req, res) => {
 
-  const { title, text } = req.body;
+  let { title, text } = req.body;
+
+  //XSS protection
+  title = DOMPurify.sanitize(title);
+  text = DOMPurify.sanitize(text);
 
   try{
 
@@ -93,7 +110,11 @@ app.post('/writeblog', async (req, res) => {
 
 app.post('/login', async (req, res) => {
   // Getting the information from the form
-  const { Username, Password } = req.body;
+  let { Username, Password } = req.body;
+
+  //XSS protection
+  Username = DOMPurify.sanitize(Username);
+  Password = DOMPurify.sanitize(Password);
 
   try {
     // Tries to authenticate the user with the given credentials
@@ -110,6 +131,22 @@ app.post('/login', async (req, res) => {
     console.error('Error logging in:', err);
 
     res.status(401).json({ success: false, message: "Username or password is incorrect." });
+  }
+});
+
+app.get('/readBlogs', async (req, res) => {
+  try {
+    // Extract search query from query parameters, default to empty string if not provided
+    const searchQuery = req.query.search || '';
+
+    //Sanitizes the input to protect against XSS
+    const cleanSearch = DOMPurify.sanitize(searchQuery);
+
+    const blogs = await readBlogs(cleanSearch);
+    res.json(blogs); // Send the fetched blogs as JSON
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('An error occurred while fetching blogs.');
   }
 });
 

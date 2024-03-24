@@ -167,5 +167,31 @@ async function writeBlog({ title, text }){
   }
 }
 
+async function readBlogs(searchQuery) {
+  try {
+    let queryText;
+    const values = [];
+
+    if (searchQuery.trim()) {
+      // If a search query is provided, search by title or text
+      queryText = `
+        SELECT * FROM securesoftware.blogs
+        WHERE title ILIKE $1 OR text ILIKE $1
+        ORDER BY blogID DESC`;
+      values.push(`%${searchQuery}%`);
+    } else {
+      // If no search query, select all blogs
+      queryText = `
+        SELECT * FROM securesoftware.blogs
+        ORDER BY blogID DESC`;
+    }
+    const result = await pool.query(queryText, values); // Execute the query
+    return result.rows; // Return the fetched rows
+  } catch (err) {
+    console.error('Error reading blogs:', err);
+    throw err; // Rethrow the error to be handled by the caller
+  }
+}
+
 //exporting the functions
-module.exports = { pool, initializeDb, registerUser,  loginUser, writeBlog};
+module.exports = { pool, initializeDb, registerUser,  loginUser, writeBlog, readBlogs};
