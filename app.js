@@ -14,10 +14,12 @@ Description:
 */
 
 const express = require('express');
-const { initializeDb, registerUser, loginUser, writeBlog, readBlogs } = require('./db');
+const { initializeDb, registerUser, loginUser, writeBlog, readBlogs, getUserId } = require('./db');
 const bodyParser = require('body-parser');
 const path = require('path');
 const app = express();
+const uuidv4 = require('uuid').v4;
+const sessions = {};
 const port = 3000;
 //Package to prevent XSS attacks
 //DOM Purify
@@ -91,6 +93,8 @@ app.post('/register', async (req, res) => {
 
 app.post('/writeblog', async (req, res) => {
 
+  //TO DO: ensure user is logged in.  This can be done through checking the session ID 
+
   let { title, text } = req.body;
 
   //XSS protection
@@ -112,7 +116,7 @@ app.post('/login', async (req, res) => {
   // Getting the information from the form
   let { Username, Password } = req.body;
 
-  //XSS protection
+  // XSS protection
   Username = DOMPurify.sanitize(Username);
   Password = DOMPurify.sanitize(Password);
 
@@ -120,11 +124,20 @@ app.post('/login', async (req, res) => {
     // Tries to authenticate the user with the given credentials
     const user = await loginUser({ Username, Password });
 
+    // Creates Token for specific user's session
+    const sessionId = uuidv4();
+
+    // Grabs user ID from database
+    const UserID = await getUserId(Username);
+
+    sessions[sessionId] = { Username, UserID };
+
+    //Sends a response with JSON data and sets a cookie
     res.status(200).json({ 
       success: true, 
       message: "Login successful!", 
       user: { Username: user.username, Email: user.email }
-    });
+    }).cookie('session', sessionId);
 
   } catch (err) {
     // Catches any error if any occur and sends a feedback message
@@ -133,6 +146,7 @@ app.post('/login', async (req, res) => {
     res.status(401).json({ success: false, message: "Username or password is incorrect." });
   }
 });
+
 
 app.get('/readBlogs', async (req, res) => {
   try {

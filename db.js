@@ -148,6 +148,15 @@ async function loginUser({ Username, Password }) {
   }
 }
 
+async function getUserId(username) {
+  try {
+    const result = await pool.query(`SELECT id FROM secureSoftware.users WHERE username = $1`, [username]);
+    return result.rows[0].id; // Assuming there's only one user with a given username
+  } catch (error) {
+    throw new Error(`Error getting user ID: ${error.message}`);
+  }
+}
+
 async function writeBlog({ title, text }){
   try {
  
@@ -194,4 +203,4 @@ async function readBlogs(searchQuery) {
 }
 
 //exporting the functions
-module.exports = { pool, initializeDb, registerUser,  loginUser, writeBlog, readBlogs};
+module.exports = { pool, initializeDb, registerUser,  loginUser, writeBlog, readBlogs, getUserId};

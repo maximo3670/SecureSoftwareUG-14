@@ -4,7 +4,13 @@ registrationHandler.js
 Author: jon
 Date created: 21/03/2024
 Description: 
-    I'll write this when i can be arsed
+    
+This JavaScript code manages the login process for a website.
+When someone tries to log in, it collects their username and password from the form they filled out.
+Then, it sends this information to the server using a special technique called Fetch.
+Once the server responds, the code checks if the login was successful. If it was, it tells the user they've successfully logged in and takes them to the main page.
+If there's an issue, like a wrong password or a server error, it lets the user know what went wrong.
+This code ensures that users get clear messages about their login attempts.
 */
 
 document.getElementById("login").addEventListener("submit", function(event){
