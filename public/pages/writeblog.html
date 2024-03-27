@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="../Styles/main.css">
+    <link rel="stylesheet" href="../Styles/writeblog.css">
+    <title>Gamer's Garden Home</title>
+</head>
+<body>
+    <div id="head">
+        <nav><!--Nav bar, may change how it is structured, may make it a more robust dropdown with just the translate widget remaining outside the dropdown-->
+            <a href="/"><img src="../Images/Logo.png" id="Logo"></a>
+            <div id="buttons">
+                <div><a href="/">Home</a></div>
+                <div><a href="/account">Account</a></div>
+                <div><a href="/blogs">Blogs</a></div>
+                <div><a href="/writeblog">New Blog</a></div>
+                <div><a href="/login">Login</a></div>
+                <div><a href="/news">News</a></div>
+            </div>
+        </nav>
+    </div>
+
+    <div id="main">
+        <div id="feedbackMessage"></div>
+        <form id="blog">
+            <label for = "title">Title</label>
+            <input type="text" name="title" value="" required></input><br>
+            <label for="text">Blog</label>
+            <textarea name="text" rows="10" cols="50" required></textarea><br>
+            <input type="submit">
+          </form>
+    </div>
+    <script src="../scripts/blogWritingHandler.js"></script>
+</body>
+</html>
