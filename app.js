@@ -133,11 +133,13 @@ app.post('/login', async (req, res) => {
     sessions[sessionId] = { Username, UserID };
 
     //Sends a response with JSON data and sets a cookie
+    res.cookie('session', sessionId, { httpOnly: true, sameSite: 'strict' });
+    console.log(sessionId)
     res.status(200).json({ 
       success: true, 
       message: "Login successful!", 
       user: { Username: user.username, Email: user.email }
-    }).cookie('session', sessionId);
+    });
 
   } catch (err) {
     // Catches any error if any occur and sends a feedback message
