@@ -133,8 +133,13 @@ app.post('/login', async (req, res) => {
     sessions[sessionId] = { Username, UserID };
 
     //Sends a response with JSON data and sets a cookie
-    res.cookie('session', sessionId, { httpOnly: true, sameSite: 'strict' });
-    console.log(sessionId)
+    res.cookie('session', sessionId, {
+      httpOnly: true,
+      sameSite: 'strict',
+      maxAge: 300000 // Expires after 5 minutes of idle time
+    });
+
+    //console.log(sessionId)  //debugging to verify if sessionID is the same as the cookie in browser
     res.status(200).json({ 
       success: true, 
       message: "Login successful!", 
