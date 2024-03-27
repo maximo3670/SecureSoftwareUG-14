@@ -1,7 +1,7 @@
 /*
 registrationHandler.js
 
-Author: jon
+Author: Jonathan Belt
 Date created: 21/03/2024
 Description: 
     

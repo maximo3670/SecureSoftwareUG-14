@@ -14,7 +14,7 @@ Description:
 */
 
 const express = require('express');
-const { initializeDb, registerUser, loginUser, writeBlog, readBlogs, getUserId } = require('./db');
+const { initializeDb, registerUser, loginUser, writeBlog, readBlogs, getUserId, checkSession } = require('./db');
 const bodyParser = require('body-parser');
 const path = require('path');
 const app = express();
@@ -91,26 +91,6 @@ app.post('/register', async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
 }});
 
-app.post('/writeblog', async (req, res) => {
-
-  //TO DO: ensure user is logged in.  This can be done through checking the session ID 
-
-  let { title, text } = req.body;
-
-  //XSS protection
-  title = DOMPurify.sanitize(title);
-  text = DOMPurify.sanitize(text);
-
-  try{
-
-      await writeBlog({ title, text });
-      res.status(201).json({ success: true, message: "Blog uploaded successfully!" });
-
-  } catch(err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-})
 
 app.post('/login', async (req, res) => {
   // Getting the information from the form
@@ -154,6 +134,26 @@ app.post('/login', async (req, res) => {
   }
 });
 
+app.post('/writeblog', checkSession, async (req, res) => {
+
+  //TO DO: ensure user is logged in.  This can be done through checking the session ID
+
+  let { title, text } = req.body;
+
+  //XSS protection
+  title = DOMPurify.sanitize(title);
+  text = DOMPurify.sanitize(text);
+
+  try{
+
+      await writeBlog({ title, text });
+      res.status(201).json({ success: true, message: "Blog uploaded successfully!" });
+
+  } catch(err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+})
 
 app.get('/readBlogs', async (req, res) => {
   try {
