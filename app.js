@@ -65,14 +65,14 @@ app.post('/register', async (req, res) => {
   Email = DOMPurify.sanitize(Email);
 
   //Check to see if the password meets the requirements
-  if (!validatePassword(cleanPassword)) {
+  if (!validatePassword(Password)) {
     return res.status(400).json({
         success: false,
         message: 'Password does not meet complexity requirements. It must be at least 8 characters long, contain at least one letter, one number, and one special character.'
     });
   }
   //Checking if passwords match
-  if (cleanPassword !== cleanConfirmPassword) {
+  if (Password !== ConfirmPassword) {
     return res.status(400).json({ success: false, message: 'Passwords do not match.' });
   }
 
