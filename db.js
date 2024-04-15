@@ -184,15 +184,19 @@ async function readBlogs(searchQuery) {
     if (searchQuery.trim()) {
       // If a search query is provided, search by title or text
       queryText = `
-        SELECT * FROM securesoftware.blogs
-        WHERE title ILIKE $1 OR text ILIKE $1
-        ORDER BY blogID DESC`;
+      SELECT b.*, u.username
+      FROM securesoftware.blogs b
+      JOIN securesoftware.users u ON b.userid = u.id
+      WHERE b.title ILIKE $1 OR u.username ILIKE $1
+      ORDER BY b.blogID DESC`;
       values.push(`%${searchQuery}%`);
     } else {
       // If no search query, select all blogs
       queryText = `
-        SELECT * FROM securesoftware.blogs
-        ORDER BY blogID DESC`;
+      SELECT b.*, u.username
+      FROM securesoftware.blogs b
+      JOIN securesoftware.users u ON b.userid = u.id
+      ORDER BY b.blogID DESC`;
     }
     const result = await pool.query(queryText, values); // Execute the query
     return result.rows; // Return the fetched rows

@@ -1,13 +1,3 @@
-/*
-registrationHandler.js
-
-Author: Max Neil
-Date created: 21/03/2024
-Description: 
-    Write when i can be bothered
-
-*/
-
 document.getElementById("blog").addEventListener("submit", function(event){
     event.preventDefault(); 
   

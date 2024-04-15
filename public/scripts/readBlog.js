@@ -4,7 +4,7 @@ async function fetchBlogs(searchQuery = '') {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const blogs = await response.json(); // This line corresponds to the error you're seeing
+        const blogs = await response.json(); 
         displayBlogs(blogs);
     } catch (error) {
         console.error('Failed to fetch blogs:', error);
@@ -20,6 +20,7 @@ function displayBlogs(blogs) {
         blogDiv.className = 'blog-entry'; 
         blogDiv.innerHTML = `
             <h3>${blog.title}</h3>
+            <h4> Author: ${blog.username}</h4>
             <p>${blog.text}</p>
         `;
         document.getElementById('blogs-container').appendChild(blogDiv);
