@@ -7,8 +7,8 @@ Description:
     This script is to handle all nodeJs queries such as Get requests for the website
     It handles changing webpages and SQL database queries.
 
-    make sure nodeJs is installed in your computer. First time setup may require you to type:
-    "npm fund". To start the server type in console "npm start". 
+    make sure nodeJs is installed in your computer.
+    To start the server type in console "npm start". 
 
     The webpage can be found on http://localhost:${port} where port is set to 3000 by default.
 */
@@ -16,6 +16,7 @@ Description:
 const express = require('express');
 const { initializeDb, registerUser, loginUser, writeBlog, readBlogs, getUserId } = require('./db');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 const app = express();
 const uuidv4 = require('uuid').v4;
@@ -27,6 +28,7 @@ const { JSDOM } = require('jsdom');
 const window = (new JSDOM('')).window;
 const DOMPurify = require('dompurify')(window);
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
@@ -112,7 +114,12 @@ app.post('/writeblog', async (req, res) => {
   }
 })
 
+const delay = (duration) => new Promise(resolve => setTimeout(resolve, duration));
+
 app.post('/login', async (req, res) => {
+
+  const startTime = Date.now();
+
   // Getting the information from the form
   let { Username, Password } = req.body;
 
@@ -139,6 +146,12 @@ app.post('/login', async (req, res) => {
       maxAge: 300000 // Expires after 5 minutes of idle time
     });
 
+    const elapsedTime = Date.now() - startTime;
+    const fixedDelay = 1000; // for example, 1000 milliseconds
+    if (elapsedTime < fixedDelay) {
+      await delay(fixedDelay - elapsedTime);
+    }
+
     //console.log(sessionId)  //debugging to verify if sessionID is the same as the cookie in browser
     res.status(200).json({ 
       success: true, 
@@ -149,6 +162,13 @@ app.post('/login', async (req, res) => {
   } catch (err) {
     // Catches any error if any occur and sends a feedback message
     console.error('Error logging in:', err);
+
+     // Calculate remaining delay
+     const elapsedTime = Date.now() - startTime;
+     const fixedDelay = 1000; // same fixed delay as above
+     if (elapsedTime < fixedDelay) {
+       await delay(fixedDelay - elapsedTime);
+     }
 
     res.status(401).json({ success: false, message: "Username or password is incorrect." });
   }
@@ -168,6 +188,24 @@ app.get('/readBlogs', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send('An error occurred while fetching blogs.');
+  }
+});
+
+app.get('/logout', (req, res) => {
+  const sessionId = req.cookies.session;
+  if (sessionId) {
+      delete sessions[sessionId]; 
+      res.clearCookie('session'); 
+  }
+  res.redirect('/login');
+});
+
+
+app.get('/check-session', (req, res) => {
+  if (req.cookies.session && sessions[req.cookies.session]) {
+      res.json({ loggedIn: true });
+  } else {
+      res.json({ loggedIn: false });
   }
 });
 
