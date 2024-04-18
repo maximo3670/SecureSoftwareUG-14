@@ -97,7 +97,6 @@ app.post('/login', async (req, res) => {
     res.status(401).json({ success: false, message: "Username or password is incorrect." });
   }
 });
-
 /*
 All Get requests regarding webpages are in this section.
 Follow same convention for any new webpages added.
