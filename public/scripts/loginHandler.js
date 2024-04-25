@@ -6,19 +6,70 @@ Description:
     I'll write this when i can be arsed
 */
 
-import sendOTP from "./emailSend.js";
-
 // Initialization function to check lockout status and update UI
 function initializePage() {
   // Retrieve the lockout data from localStorage if available
   var lockoutData = JSON.parse(localStorage.getItem("loginLockout")) || { attempts: 0, timestamp: null };
+  var twoFA = JSON.parse(localStorage.getItem("twoFA"))
 
   // Check if the lockout has expired
-  if (lockoutData.attempts >= maxAttempts && !isLockoutExpired()) {
+  if (lockoutData.attempts >= maxAttempts && !isLockoutExpired(lockoutData)) {
       document.getElementById("feedbackMessage").textContent = "You have temporarily locked out. Come back later";
       document.getElementById("submit").style.display = "none"; // Fixing this, 'none' should be a string
   }
 }
+
+function isLockoutExpired() {
+    if (!lockoutData.timestamp) return true; // Lockout never occurred
+    return (Date.now() - lockoutData.timestamp) > lockoutDuration;
+}
+
+function login(formData){
+    fetch('/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+
+            // Feedback to the user if the login was successful
+            document.getElementById("feedbackMessage").textContent = "Login successful!";
+            document.getElementById("feedbackMessage").style.color = "green"; // Change color to green for success
+
+            window.location.href = '/';
+        }
+        else {
+            // If success flag is false, there is a message which corresponds to the error
+            document.getElementById("feedbackMessage").textContent = data.message || "Login failed. Please try again.";
+            lockoutData.attempts++;
+            if (lockoutData.attempts >= maxAttempts) {
+                lockoutData.timestamp = Date.now(); // Set lockout timestamp if max attempts reached
+            }
+            // Update the lockout data in localStorage
+            localStorage.setItem("loginLockout", JSON.stringify(lockoutData));
+        }
+    })
+
+.catch((error) => {
+
+    // This catches any other errors such as network errors
+    document.getElementById("feedbackMessage").textContent = "An error occurred. Please try again.";
+    console.error('Error:', error);
+    lockoutData.attempts++;
+    if (lockoutData.attempts >= maxAttempts && lockoutData.timestamp == null) {
+        lockoutData.timestamp = Date.now(); // Set lockout timestamp if max attempts reached
+    }
+    // Update the lockout data in localStorage
+    localStorage.setItem("loginLockout", JSON.stringify(lockoutData));
+});
+}
+
+var lockoutDuration = 5 * 60 * 1000; // Lockout duration is set to 5 minutes (in milliseconds)
+
 
 // Call the initialization function when the page loads or returns to the page
 window.addEventListener('load', initializePage);
@@ -38,51 +89,11 @@ document.getElementById("login").addEventListener("submit", function(event) {
   if (lockoutData.attempts >= maxAttempts && !isLockoutExpired()) {
       document.getElementById("feedbackMessage").textContent = "You have temporarily locked out. Come back later";
       document.getElementById("submit").style.display = "none"; // Fixing this, 'none' should be a string
-  } 
-  if(twoFA==false){
-    document.getElementById("feedbackMessage").textContent = "2FA has not been confirmed, please check your email.";
+  }
+  else if(twoFA == false || twoFA == null){
+
   }
   else {
-      fetch('/login', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(formData),
-          })
-          .then(response => response.json())
-          .then(data => {
-              if (data.success) {
-
-                  // Feedback to the user if the login was successful
-                  document.getElementById("feedbackMessage").textContent = "Login successful!";
-                  document.getElementById("feedbackMessage").style.color = "green"; // Change color to green for success
-
-                  window.location.href = '/';
-              }
-              else {
-                  // If success flag is false, there is a message which corresponds to the error
-                  document.getElementById("feedbackMessage").textContent = data.message || "Login failed. Please try again.";
-                  lockoutData.attempts++;
-                  if (lockoutData.attempts >= maxAttempts) {
-                      lockoutData.timestamp = Date.now(); // Set lockout timestamp if max attempts reached
-                  }
-                  // Update the lockout data in localStorage
-                  localStorage.setItem("loginLockout", JSON.stringify(lockoutData));
-              }
-          })
-
-      .catch((error) => {
-
-          // This catches any other errors such as network errors
-          document.getElementById("feedbackMessage").textContent = "An error occurred. Please try again.";
-          console.error('Error:', error);
-          lockoutData.attempts++;
-          if (lockoutData.attempts >= maxAttempts) {
-              lockoutData.timestamp = Date.now(); // Set lockout timestamp if max attempts reached
-          }
-          // Update the lockout data in localStorage
-          localStorage.setItem("loginLockout", JSON.stringify(lockoutData));
-      });
+    login(formData)
   }
-});
+})
