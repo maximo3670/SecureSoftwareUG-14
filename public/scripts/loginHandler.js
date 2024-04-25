@@ -5,6 +5,9 @@ Date created: 21/03/2024
 Description: 
     I'll write this when i can be arsed
 */
+
+import sendOTP from "./emailSend.js";
+
 // Initialization function to check lockout status and update UI
 function initializePage() {
   // Retrieve the lockout data from localStorage if available
@@ -26,13 +29,20 @@ document.getElementById("login").addEventListener("submit", function(event) {
   // Getting the data from the form
   var formData = {
       Username: document.getElementsByName("Username")[0].value,
-      Password: document.getElementsByName("Password")[0].value
+      Password: document.getElementsByName("Password")[0].value,
+      OTP: document.getElementsByName("OTP")[0].value
   };
+
+  var twoFA = false;
 
   if (lockoutData.attempts >= maxAttempts && !isLockoutExpired()) {
       document.getElementById("feedbackMessage").textContent = "You have temporarily locked out. Come back later";
       document.getElementById("submit").style.display = "none"; // Fixing this, 'none' should be a string
-  } else {
+  } 
+  if(twoFA==false){
+    document.getElementById("feedbackMessage").textContent = "2FA has not been confirmed, please check your email.";
+  }
+  else {
       fetch('/login', {
               method: 'POST',
               headers: {
@@ -49,8 +59,8 @@ document.getElementById("login").addEventListener("submit", function(event) {
                   document.getElementById("feedbackMessage").style.color = "green"; // Change color to green for success
 
                   window.location.href = '/';
-              } else {
-
+              }
+              else {
                   // If success flag is false, there is a message which corresponds to the error
                   document.getElementById("feedbackMessage").textContent = data.message || "Login failed. Please try again.";
                   lockoutData.attempts++;

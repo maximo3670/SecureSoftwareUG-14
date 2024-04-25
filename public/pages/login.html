@@ -27,37 +27,15 @@
             <label for="Password">Password</label>
             <input type="password" name="Password" value="" required><br>
             <p>Have no account? Click this link to <a href="/register">sign up.</a></p>
+            <br>
+            <label for="OTP"> One-Time Password</label>
+            <input type="text" name="OTP" value=""><br>
             <input type="submit" id="submit" value="Login">
         </form>
     </div>
     <!-- Hidden placeholder for OTP input -->
-    <div id="otpPopup" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <label for="OTP">One-Time Password (2FA)</label>
-            <input type="text" name="OTP" id="OTP"><br>
-            <button onclick="submitOTP()">Submit</button>
-        </div>
-    </div>
+
 
     <script src="../scripts/loginHandler.js"></script>
-    <script>
-        // Function to display the OTP pop-up
-        function displayOTP() {
-            document.getElementById("otpPopup").style.display = "block";
-        }
-
-        // Function to close the OTP pop-up
-        function closeModal() {
-            document.getElementById("otpPopup").style.display = "none";
-        }
-
-        // Function to submit OTP entered by the user
-        function submitOTP() {
-            var otp = document.getElementById("OTP").value;
-            // Pass the entered OTP to the login handler
-            retryLogin({ OTP: otp });
-        }
-    </script>
 </body>
 </html>

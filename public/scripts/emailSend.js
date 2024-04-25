@@ -27,6 +27,7 @@ function sendOTP(email){
 
     // Send email with OTP
     trans.sendMail(mailing, (error, info) => {
+        document.getElementsByName("OTP").style.display= "block";
         if (error) {
             console.log('Error occurred: ' + error.message);
             return false;
