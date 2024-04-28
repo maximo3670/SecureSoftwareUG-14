@@ -1,3 +1,5 @@
+module.exports = { sendOTP, storedOTP };
+
 const nodemailer = require("nodemailer");
 const otpGenerator = require("otp");
 
