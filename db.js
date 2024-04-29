@@ -187,15 +187,26 @@ async function deleteBlog({ blogid }) {
   }
 }
 
-async function updateBlogText({ blogId, newText }) {
-  const queryText = 'UPDATE securesoftware.blogs SET text = $2 WHERE blogid = $1;';
+async function updateBlogText({ blogid, title, text }) {
+  const queryText = 'UPDATE securesoftware.blogs SET title = $2, text = $3 WHERE blogid = $1;';
   try {
-    if (!blogId || newText === undefined) {
-      throw new Error('Missing blog ID or new text.');
-    }
-    await pool.query(queryText, [blogId, newText]);
+    await pool.query(queryText, [blogid, title, text]);
   } catch (err) {
     console.error('Error updating blog text:', err);
+    throw err;  
+  }
+}
+
+async function getBlogById({ blogid }) {
+  const queryText = 'SELECT * FROM securesoftware.blogs WHERE blogs.blogid = $1;';
+  try {
+    if (!blogid) {
+      throw new Error('Missing blog ID');
+    }
+    const result = await pool.query(queryText, [blogid]);
+    return result.rows[0];
+  } catch (err) {
+    console.error('Error getting blog:', err);
     throw err;  
   }
 }
@@ -254,4 +265,4 @@ async function readBlogs(searchQuery) {
 }
 
 //exporting the functions
-module.exports = { pool, initializeDb, registerUser,  loginUser, writeBlog, readBlogs, getUserId, userBlogs, deleteBlog, updateBlogText};
+module.exports = { pool, initializeDb, registerUser,  loginUser, writeBlog, readBlogs, getUserId, userBlogs, deleteBlog, updateBlogText, getBlogById};

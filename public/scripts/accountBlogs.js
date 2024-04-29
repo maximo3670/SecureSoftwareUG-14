@@ -33,7 +33,11 @@ function displayBlogs(blogs) {
         const updateButton = document.createElement('button');
         updateButton.textContent = 'Update';
         // Update button does nothing for now, prepare for future implementation
-        updateButton.onclick = function() { /* Future implementation */ };
+        updateButton.onclick = function() {
+            // Redirect to the update page with parameters
+            window.location.href = `/account/updateBlog?blogid=${blog.blogid}`;
+        };
+        
 
         // Append buttons to the blogDiv
         blogDiv.appendChild(deleteButton);

@@ -14,7 +14,7 @@ Description:
 */
 
 const express = require('express');
-const { initializeDb, registerUser, loginUser, writeBlog, readBlogs, getUserId, userBlogs, updateBlogText, deleteBlog } = require('./db');
+const { initializeDb, registerUser, getBlogById, loginUser, writeBlog, readBlogs, getUserId, userBlogs, updateBlogText, deleteBlog } = require('./db');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const path = require('path');
@@ -248,18 +248,35 @@ app.post('/deleteBlog', checkSession, async (req, res) => {
 });
 
 app.post('/updateBlog', checkSession, async (req, res) => {
-  const { blogId, newText } = req.body;
+  const { blogid, title, text } = req.body;
+
+  title = DOMPurify.sanitize(title);
+  text = DOMPurify.sanitize(text);
 
   try {
-      if (!blogId || newText === undefined) {
-          return res.status(400).json({ success: false, message: 'Blog ID and new text must be provided.' });
+      if (!blogid || !title || !text) {
+          return res.status(400).json({ success: false, message: 'Blog ID, title and text must be provided.' });
       }
 
-      await updateBlogText({ blogId, newText });
+      await updateBlogText({ blogid, title, text });
       res.json({ success: true, message: 'Blog text successfully updated.' });
   } catch (err) {
       console.error(err);
       res.status(500).json({ success: false, message: 'Failed to update blog text.' });
+  }
+});
+
+app.get('/getBlog/:blogid', async (req, res) => {
+  const { blogid } = req.params;
+  try {
+      const blog = await getBlogById({ blogid }); // This function should query your database
+      if (!blog) {
+          return res.status(404).json({ success: false, message: 'Blog not found.' });
+      }
+      res.json(blog);
+  } catch (err) {
+      console.error('Failed to retrieve blog:', err);
+      res.status(500).json({ success: false, message: 'Server error.' });
   }
 });
 
@@ -272,6 +289,10 @@ Follow same convention for any new webpages added.
 app.get('/check-session', (req, res) => {
   const loggedIn = req.cookies && req.cookies.session && sessions[req.cookies.session];
   res.json({ loggedIn: loggedIn });
+});
+
+app.get('/account/updateBlog', checkSession, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/pages/updateBlog.html'));
 });
 
 app.get('/', (req, res) => {
