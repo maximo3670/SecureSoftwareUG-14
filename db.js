@@ -174,13 +174,13 @@ async function writeBlog({userID, title, text}){
   }
 }
 
-async function deleteBlog({ blogId }) {
+async function deleteBlog({ blogid }) {
   const queryText = 'DELETE FROM securesoftware.blogs WHERE blogs.blogid = $1;';
   try {
-    if (!blogId) {
+    if (!blogid) {
       throw new Error('No blog ID provided');
     }
-    await pool.query(queryText, [blogId]);
+    await pool.query(queryText, [blogid]);
   } catch (err) {
     console.error('Error deleting blog:', err);
     throw err;  
@@ -197,6 +197,28 @@ async function updateBlogText({ blogId, newText }) {
   } catch (err) {
     console.error('Error updating blog text:', err);
     throw err;  
+  }
+}
+
+async function userBlogs({userID}) {
+  try {
+    if (!userID) {
+      throw new Error('No user ID provided');
+    }
+
+    let queryText = `
+      SELECT blogs.*, users.username
+      FROM securesoftware.blogs 
+      JOIN securesoftware.users ON blogs.userid = users.id
+      WHERE blogs.userid = $1;`; 
+
+    const values = [userID]; 
+
+    const result = await pool.query(queryText, values); 
+    return result.rows; 
+  } catch (err) {
+    console.error('Error reading blogs for user:', err);
+    throw err; 
   }
 }
 
@@ -232,4 +254,4 @@ async function readBlogs(searchQuery) {
 }
 
 //exporting the functions
-module.exports = { pool, initializeDb, registerUser,  loginUser, writeBlog, readBlogs, getUserId};
+module.exports = { pool, initializeDb, registerUser,  loginUser, writeBlog, readBlogs, getUserId, userBlogs, deleteBlog, updateBlogText};

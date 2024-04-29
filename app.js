@@ -14,7 +14,7 @@ Description:
 */
 
 const express = require('express');
-const { initializeDb, registerUser, loginUser, writeBlog, readBlogs, getUserId } = require('./db');
+const { initializeDb, registerUser, loginUser, writeBlog, readBlogs, getUserId, userBlogs, updateBlogText, deleteBlog } = require('./db');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const path = require('path');
@@ -211,6 +211,17 @@ app.get('/readBlogs', async (req, res) => {
   }
 });
 
+app.get('/readUserBlogs', checkSession, async (req, res) => {
+  const sessionId = req.cookies ? req.cookies.session : undefined;
+  try {
+    const blogs = await userBlogs({userID: sessions[sessionId].UserID});
+    res.json(blogs); // Send the fetched blogs as JSON
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('An error occurred while fetching blogs.');
+  }
+});
+
 app.get('/logout', (req, res) => {
   const sessionId = req.cookies.session;
   if (sessionId) {
@@ -219,6 +230,39 @@ app.get('/logout', (req, res) => {
   }
   res.redirect('/login');
 });
+
+app.post('/deleteBlog', checkSession, async (req, res) => {
+  const { blogid } = req.body;
+
+  try {
+      if (!blogid) {
+          return res.status(400).json({ success: false, message: 'Blog ID must be provided.' });
+      }
+
+      await deleteBlog({ blogid });
+      res.json({ success: true, message: 'Blog successfully deleted.' });
+  } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, message: 'Failed to delete blog.' });
+  }
+});
+
+app.post('/updateBlog', checkSession, async (req, res) => {
+  const { blogId, newText } = req.body;
+
+  try {
+      if (!blogId || newText === undefined) {
+          return res.status(400).json({ success: false, message: 'Blog ID and new text must be provided.' });
+      }
+
+      await updateBlogText({ blogId, newText });
+      res.json({ success: true, message: 'Blog text successfully updated.' });
+  } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, message: 'Failed to update blog text.' });
+  }
+});
+
 
 /*
 All Get requests regarding webpages are in this section.
