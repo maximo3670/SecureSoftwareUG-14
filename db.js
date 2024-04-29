@@ -157,15 +157,13 @@ async function getUserId(username) {
   }
 }
 
-async function writeBlog({ title, text }){
+async function writeBlog({userID, title, text}){
   try {
  
     const queryText = `
       INSERT INTO securesoftware.blogs (userID, title, text)
       VALUES ($1, $2, $3)`; 
 
-    const userID = 1;
-    // Execute the query
     const values = [userID, title, text];
     await pool.query(queryText, values);
 

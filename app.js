@@ -22,6 +22,9 @@ const app = express();
 const uuidv4 = require('uuid').v4;
 const sessions = {};
 const port = 3000;
+
+//const checkSession = require ("checkSession")
+
 //Package to prevent XSS attacks
 //DOM Purify
 const { JSDOM } = require('jsdom');
@@ -47,11 +50,26 @@ otherwise it runs a function within the db.js script which writes to the databas
 if the function is successful it sends a success message back. otherwise it sends an error
 message back. Specifically if a username or password dont exist
 */
+
 function validatePassword(password) {
   // This is a regex (regular expression) to check requirements of a password
   // checks for minimum eight characters, at least one letter, one number and one special character
   const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
   return regex.test(password);
+}
+
+function checkSession(req, res, next) {
+  const sessionId = req.cookies ? req.cookies.session : undefined;
+
+  console.log("SessionID: ", sessionId);
+  console.log("Sessions:", sessions);
+
+  if (sessionId && sessions[sessionId]) {
+    console.log("UserID: ", sessions[sessionId].UserID);
+    next();
+  } else {
+    res.status(401).json({ success: false, message: "This action requires you to be logged in." });
+  }
 }
 
 app.post('/register', async (req, res) => {
@@ -93,25 +111,27 @@ app.post('/register', async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
 }});
 
-app.post('/writeblog', async (req, res) => {
-
-  //TO DO: ensure user is logged in.  This can be done through checking the session ID 
+app.post('/writeblog', checkSession, async (req, res) => {    //checkSession ran
 
   let { title, text } = req.body;
+
+  const sessionId = req.cookies ? req.cookies.session : undefined;
+
+  console.log("SessinID:", sessionId)
 
   //XSS protection
   title = DOMPurify.sanitize(title);
   text = DOMPurify.sanitize(text);
 
-  try{
+  console.log({ title: title, text: text, UserID: sessions[sessionId].UserID })
 
-      await writeBlog({ title, text });
-      res.status(201).json({ success: true, message: "Blog uploaded successfully!" });
-
-  } catch(err) {
+  try {
+    await writeBlog({ userID: sessions[sessionId].UserID, title: title, text: text });
+    res.status(201).json({ success: true, message: "Blog uploaded." });
+} catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Server error" });
-  }
+}
 })
 
 const delay = (duration) => new Promise(resolve => setTimeout(resolve, duration));
@@ -120,21 +140,21 @@ app.post('/login', async (req, res) => {
 
   const startTime = Date.now();
 
-  // Getting the information from the form
+  //Getting the information from the form
   let { Username, Password } = req.body;
 
-  // XSS protection
+  //XSS protection
   Username = DOMPurify.sanitize(Username);
   Password = DOMPurify.sanitize(Password);
 
   try {
-    // Tries to authenticate the user with the given credentials
+    //Tries to authenticate the user with the given credentials
     const user = await loginUser({ Username, Password });
 
-    // Creates Token for specific user's session
+    //Creates Token for specific user's session
     const sessionId = uuidv4();
 
-    // Grabs user ID from database
+    //Grabs user ID from database
     const UserID = await getUserId(Username);
 
     sessions[sessionId] = { Username, UserID };
@@ -200,19 +220,16 @@ app.get('/logout', (req, res) => {
   res.redirect('/login');
 });
 
-
-app.get('/check-session', (req, res) => {
-  if (req.cookies.session && sessions[req.cookies.session]) {
-      res.json({ loggedIn: true });
-  } else {
-      res.json({ loggedIn: false });
-  }
-});
-
 /*
 All Get requests regarding webpages are in this section.
 Follow same convention for any new webpages added.
 */
+
+app.get('/check-session', (req, res) => {
+  const loggedIn = req.cookies && req.cookies.session && sessions[req.cookies.session];
+  res.json({ loggedIn: loggedIn });
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/pages/index.html'));
 });
