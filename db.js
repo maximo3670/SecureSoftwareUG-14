@@ -174,6 +174,33 @@ async function writeBlog({userID, title, text}){
   }
 }
 
+async function deleteBlog({ blogId }) {
+  const queryText = 'DELETE FROM securesoftware.blogs WHERE blogs.blogid = $1;';
+  try {
+    if (!blogId) {
+      throw new Error('No blog ID provided');
+    }
+    await pool.query(queryText, [blogId]);
+  } catch (err) {
+    console.error('Error deleting blog:', err);
+    throw err;  
+  }
+}
+
+async function updateBlogText({ blogId, newText }) {
+  const queryText = 'UPDATE securesoftware.blogs SET text = $2 WHERE blogid = $1;';
+  try {
+    if (!blogId || newText === undefined) {
+      throw new Error('Missing blog ID or new text.');
+    }
+    await pool.query(queryText, [blogId, newText]);
+  } catch (err) {
+    console.error('Error updating blog text:', err);
+    throw err;  
+  }
+}
+
+
 async function readBlogs(searchQuery) {
   try {
     let queryText;

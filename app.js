@@ -167,7 +167,7 @@ app.post('/login', async (req, res) => {
     });
 
     const elapsedTime = Date.now() - startTime;
-    const fixedDelay = 1000; // for example, 1000 milliseconds
+    const fixedDelay = 1000; 
     if (elapsedTime < fixedDelay) {
       await delay(fixedDelay - elapsedTime);
     }
