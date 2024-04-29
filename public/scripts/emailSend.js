@@ -2,6 +2,8 @@ module.exports = { sendOTP, storedOTP };
 
 const nodemailer = require("nodemailer");
 const otpGenerator = require("otp");
+const { getEmail } = require("../../db");
+const db = require = ("../../db.js")
 
 const trans = nodemailer.createTransport({
     service: "Gmail",
@@ -18,7 +20,8 @@ function generateOTP(){
     return secret.totp();
 }
 
-function sendOTP(email){
+function sendOTP(Username, Password){
+    const email = getEmail(Username, Password);
     storedOTP = generateOTP(); // Generate OTP and store it
     const mailing = {
         from: "donotreplygamersgarden@gmail.com", // Our email

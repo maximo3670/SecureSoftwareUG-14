@@ -48,45 +48,56 @@ function is2FAExpired(twoFA){
 window.addEventListener('load', initializePage);
  
 document.getElementById("login").addEventListener("submit", function(event) {
-  event.preventDefault();
- 
-  // Getting the data from the form
-  var formData = {
-      Username: document.getElementsByName("Username")[0].value,
-      Password: document.getElementsByName("Password")[0].value,
-  };
- 
-  var lockoutData = JSON.parse(localStorage.getItem("loginLockout")) || { attempts: 0, timestamp: null };
-  var twoFA = JSON.parse(localStorage.getItem("twoFA")) || {verified: false, twoFaTs: null};
-  if (lockoutData.attempts > maxAttempts && !isLockoutExpired(lockoutData)) {
-      document.getElementById("feedbackMessage").textContent = "You have temporarily locked out. Come back later";
-      document.getElementById("submit").style.display = "none"; // Fixing this, 'none' should be a string
-  }
-  else if(twoFA.verified || is2FAExpired(twoFA)){
-
-  }
-  else {
-    fetch('/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
- 
-            // Feedback message for successful login
-            document.getElementById("feedbackMessage").textContent = "Login successful!";
+    event.preventDefault();
+   
+    // Getting the data from the form
+    var formData = {
+        Username: document.getElementsByName("Username")[0].value,
+        Password: document.getElementsByName("Password")[0].value,
+    };
+   
+    var lockoutData = JSON.parse(localStorage.getItem("loginLockout")) || { attempts: 0, timestamp: null };
+    var twoFA = JSON.parse(localStorage.getItem("twoFA")) || {verified: false, twoFaTs: null};
+  
+    const maxAttempts = 3; // Define the maximum number of login attempts here
+  
+    if (lockoutData.attempts >= maxAttempts && !isLockoutExpired(lockoutData)) {
+        document.getElementById("feedbackMessage").textContent = "You have temporarily locked out. Come back later";
+        document.getElementById("submit").style.display = "none"; // Fixing this, 'none' should be a string
+    }if (!twoFA.verified || is2FAExpired(twoFA)) {
+        document.getElementById("feedbackMessage").textContent = "You have not been verified via two-factor authentication. We have sent out an email tied to your account";
+        sendOTP(Username, Password);
+    } else if (!document.getElementsByName("OTP")[0].value) {
+        document.getElementById("feedbackMessage").textContent = "Please enter the OTP sent to your email.";
+    } else {
+        const OTP = document.getElementsByName("OTP")[0].value;
+        if (storedOTP() === OTP) {
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Feedback message for successful login
+                    document.getElementById("feedbackMessage").textContent = "Login successful!";
+                } else {
+                    // Update lockout data and UI for failed login attempt
+                    lockoutData.attempts++;
+                    lockoutData.timestamp = Date.now();
+                    localStorage.setItem("loginLockout", JSON.stringify(lockoutData));
+                    document.getElementById("feedbackMessage").textContent = "Login failed. Please try again.";
+                }
+            })
+            .catch(error => console.error('Error:', error));
         } else {
-            // Update lockout data and UI for failed login attempt
             lockoutData.attempts++;
             lockoutData.timestamp = Date.now();
             localStorage.setItem("loginLockout", JSON.stringify(lockoutData));
-            document.getElementById("feedbackMessage").textContent = "Login failed. Please try again.";
+            document.getElementById("feedbackMessage").textContent = "Incorrect OTP. Please try again.";
         }
-    })
-    .catch(error => console.error('Error:', error));
-  }
-});
+    }
+  });
