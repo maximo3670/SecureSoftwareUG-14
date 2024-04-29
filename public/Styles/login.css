@@ -1,8 +1,15 @@
-#login{
+#main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#login {
+  margin: 0 auto; /* Center horizontally */
   margin-top: 50px;
   padding: 10px;
   background: var(--tri);
-  width: 100%;
+  width: 90%;
   height: 40%;
   border: 3px solid var(--sec);
   border-radius: 5px;
@@ -43,4 +50,8 @@
 #login input[type="submit"]:hover{
   border: 5px solid #4d4d4d!important;
   box-shadow: 0 0 0 5px var(--sec);
+}
+
+label[for="OTP"], input[name="OTP"]{
+  display:none;
 }
