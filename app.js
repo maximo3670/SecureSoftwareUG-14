@@ -250,7 +250,7 @@ app.post('/deleteBlog', checkSession, async (req, res) => {
 });
 
 app.post('/updateBlog', checkSession, async (req, res) => {
-  const { blogid, title, text } = req.body;
+  let { blogid, title, text } = req.body;
 
   title = DOMPurify.sanitize(title);
   text = DOMPurify.sanitize(text);
