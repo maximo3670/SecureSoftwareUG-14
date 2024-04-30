@@ -20,10 +20,12 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const app = express();
 const uuidv4 = require('uuid').v4;
+const csrf = require('csurf');
 const sessions = {};
 const port = 3000;
 
-//const checkSession = require ("checkSession")
+const csrfProtection = csrf({ cookie: true });
+app.use(express.urlencoded({ extended: true }));
 
 //Package to prevent XSS attacks
 //DOM Purify
@@ -266,6 +268,11 @@ app.post('/updateBlog', checkSession, async (req, res) => {
   }
 });
 
+/*
+All Get requests regarding webpages are in this section.
+Follow same convention for any new webpages added.
+*/
+
 app.get('/getBlog/:blogid', async (req, res) => {
   const { blogid } = req.params;
   try {
@@ -280,11 +287,9 @@ app.get('/getBlog/:blogid', async (req, res) => {
   }
 });
 
-
-/*
-All Get requests regarding webpages are in this section.
-Follow same convention for any new webpages added.
-*/
+app.get('/csrf-token', csrfProtection, (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
 
 app.get('/check-session', (req, res) => {
   const loggedIn = req.cookies && req.cookies.session && sessions[req.cookies.session];
@@ -311,7 +316,7 @@ app.get('/account', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/pages/account.html'));
 });
 
-app.get('/login', (req, res) => {
+app.get('/login', csrfProtection, (req, res) => {
   res.sendFile(path.join(__dirname, 'public/pages/login.html'));
 });
 

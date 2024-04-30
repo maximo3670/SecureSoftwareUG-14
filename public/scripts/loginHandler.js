@@ -1,7 +1,7 @@
 /*
 registrationHandler.js
 
-Author: jon
+Author: Jonthan Belt, Max Neil
 Date created: 21/03/2024
 Description: 
     
