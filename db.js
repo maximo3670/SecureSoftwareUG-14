@@ -165,4 +165,4 @@ async function getEmail({Username, Password}){
 }
 
 //exporting the functions
-module.exports = { pool, initializeDb, registerUser,  loginUser};
+module.exports = { pool, initializeDb, registerUser,  loginUser, getEmail};
