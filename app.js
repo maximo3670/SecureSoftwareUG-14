@@ -14,7 +14,7 @@ Description:
 */
 
 const express = require('express');
-const { initializeDb, registerUser, getBlogById, loginUser, writeBlog, readBlogs, getUserId, userBlogs, updateBlogText, deleteBlog } = require('./db');
+const { registerUser, getBlogById, loginUser, writeBlog, readBlogs, getUserId, userBlogs, updateBlogText, deleteBlog } = require('./db');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const path = require('path');
@@ -22,8 +22,6 @@ const app = express();
 const uuidv4 = require('uuid').v4;
 const csrf = require('csurf');
 const sessions = {};
-const port = 3000;
-
 const csrfProtection = csrf({ cookie: true });
 app.use(express.urlencoded({ extended: true }));
 
@@ -333,10 +331,4 @@ app.use((req, res, next) => {
   res.status(404).send("ERROR: 404 \nWebpage does not exist");
 });
 
-// Initialize the database
-initializeDb().then(() => {
-  // Start the server only after the DB has been initialized
-  app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
-  });
-}).catch(err => console.error("Database initialization failed:", err));
+module.exports = app;
