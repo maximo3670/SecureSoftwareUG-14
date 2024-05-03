@@ -5,8 +5,12 @@ Date created: 21/03/2024
 Description: 
     I'll write this when i can be arsed
 */
+<<<<<<< Updated upstream
 
 const { sendOTP, storedOTP } = require('emailSend.js');
+=======
+const nm = require("nodemailer")
+>>>>>>> Stashed changes
 
 var maxAttempts = 3; // Maximum number of login attempts allowed
 var lockoutDuration = 5 * 60 * 1000; // Lockout duration is set to 5 minutes (in milliseconds)
