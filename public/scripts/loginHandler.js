@@ -5,6 +5,7 @@ Date created: 21/03/2024
 Description: 
     I'll write this when i can be arsed
 */
+const { getEmail } = require("../../db");
 
 let storedOTP;
 var maxAttempts = 3; // Maximum number of login attempts allowed
@@ -76,8 +77,13 @@ document.getElementById("login").addEventListener("submit", function(event) {
     else if ((!twoFA.verified || is2FAExpired(twoFA)) && (OTP == "" || OTP == " " || OTP == null)) {
         storedOTP = generateOTP()
         document.getElementById("feedbackMessage").textContent = "You have not been verified via two-factor authentication. We have sent out an email tied to your account";
+        const targetEmail = getEmail(Username, Password)
+        if (targetEmail == null){
+            console.error("No exisiting email for this user")
+        }
+        else{
         const emailData = {
-            to: "mitch2003@icloud.com", // Target email address
+            to: targetEmail, // Target email address
             subject: 'YOUR ONE TIME PASSWORD',
             html: `<body style="margin: 0;
                 padding: 0;
@@ -107,6 +113,7 @@ document.getElementById("login").addEventListener("submit", function(event) {
             }
         })
         .catch(error => console.error('Error:', error));
+    }
 
     } else if (document.getElementsByName("OTP")[0].value) {
         document.getElementById("feedbackMessage").textContent = "Please enter the OTP sent to your email.";
