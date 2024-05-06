@@ -19,6 +19,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const app = express();
 const port = 3000;
+const nodemailer = require('nodemailer');
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -98,6 +99,43 @@ app.post('/login', async (req, res) => {
   }
 });
 
+app.post('/send-email', (req, res) => {
+  const { to, subject, text, html } = req.body;
+
+  // Ensure that the target email address is provided
+  if (!to) {
+      return res.status(400).json({ success: false, error: 'Target email address is required' });
+  }
+
+  // Create a transporter object using SMTP transport
+  const transporter = nodemailer.createTransport({
+      service: 'hotmail',
+      auth: {
+          user: 'donotreplygamersgarden@outlook.com', // Your email address
+          pass: 'z&y;X:YVtHp2Q=m~g}R#DM' // Your email password or app-specific password
+      }
+  });
+
+  // Setup email data
+  const mailOptions = {
+      from: 'donotreplygamersgarden@outlook.com', // Sender address
+      to, // Recipient address
+      subject, // Subject line
+      text, // Plain text body
+      html // HTML body
+  };
+
+  // Send email
+  transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+          console.error('Error occurred while sending email:', error);
+          return res.status(500).json({ success: false, error: 'Failed to send email', details: error });
+      } else {
+          console.log('Email sent:', info.response);
+          return res.json({ success: true });
+      }
+  });
+});
 /*
 All Get requests regarding webpages are in this section.
 Follow same convention for any new webpages added.
