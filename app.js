@@ -19,6 +19,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const app = express();
+const nodemailer = require('nodemailer');
 const uuidv4 = require('uuid').v4;
 const csrf = require('csurf');
 const sessions = {};
