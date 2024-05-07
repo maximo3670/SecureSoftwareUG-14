@@ -68,8 +68,8 @@ document.getElementById("login").addEventListener("submit", function(event) {
         Password: document.getElementsByName("Password")[0].value,
     };
 
-    var OTP = document.getElementsByName("OTP")[0].value
-   
+    const OTP = document.getElementsByName("OTP")[0].value;
+
     var lockoutData = JSON.parse(localStorage.getItem("loginLockout")) || { attempts: 0, timestamp: null };
     var twoFA = JSON.parse(localStorage.getItem("twoFA")) || {verified: false, twoFaTs: null};
   
@@ -80,7 +80,7 @@ document.getElementById("login").addEventListener("submit", function(event) {
         document.getElementById("submit").style.display = "none"; // Fixing this, 'none' should be a string
 
     }
-    else if ((!twoFA.verified || is2FAExpired(twoFA)) && (OTP == "" || OTP == " " || OTP == null)) {
+    else if ((!twoFA.verified || is2FAExpired(twoFA)) && OTP == "") {
         storedOTP = generateOTP()
         document.getElementById("feedbackMessage").textContent = "You have not been verified via two-factor authentication. We have sent out an email tied to your account";
         const emailData = {
@@ -114,13 +114,16 @@ document.getElementById("login").addEventListener("submit", function(event) {
             }
         })
         .catch(error => console.error('Error:', error));
+        var elements = document.getElementsByClassName("OTP");
+        for(var i = 0; i < elements.length; i++) {
+            elements[i].style.display = "block";
+        }
 
-    } else if (document.getElementsByName("OTP")[0].value) {
-        document.getElementById("feedbackMessage").textContent = "Please enter the OTP sent to your email.";
-
-    } else {
-        const OTP = document.getElementsByName("OTP")[0].value;
-        if (storedOTP() === OTP) {
+    }else {
+        if (storedOTP == OTP || twoFA == true) {
+          twoFA.verified = true;
+          twoFA.timestamp = Date.now()
+          localStorage.setItem("twoFA", JSON.stringify(twoFA));
             fetch('/login', {
                 method: 'POST',
                 headers: {
