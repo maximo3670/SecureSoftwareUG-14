@@ -84,7 +84,7 @@ document.getElementById("login").addEventListener("submit", function(event) {
         storedOTP = generateOTP()
         document.getElementById("feedbackMessage").textContent = "You have not been verified via two-factor authentication. We have sent out an email tied to your account";
         const emailData = {
-            to: "mitch2003@icloud.com", // Target email address
+            Username: formData.Username, // Target email address
             subject: 'YOUR ONE TIME PASSWORD',
             html: `<body style="margin: 0;
                 padding: 0;

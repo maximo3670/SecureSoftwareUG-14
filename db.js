@@ -264,32 +264,30 @@ async function readBlogs(searchQuery) {
   }
 }
 
-async function getEmail({Username, Password}){
+async function getEmail(Username) {
   try {
-    await client.connect();
+      // Query to fetch email based on username
+      console.log(Username);
+      const query = {
+          text: `SELECT email FROM securesoftware.users WHERE username = $1`,
+          values: [Username],
+      };
 
-    // Query to fetch email based on username and password
-    const query = {
-        text: 'SELECT email FROM users WHERE username = $1 AND password = $2',
-        values: [username, password],
-    };
+      const result = await pool.query(query);
 
-    const result = await client.query(query);
-
-    if (result.rows.length > 0) {
-        // If a user with the given username and password exists, return their email
-        return result.rows[0].email;
-    } else {
-        // If no user with the given username and password exists, return null
-        return null;
-    }
-} catch (error) {
-    console.error('Error retrieving user email:', error);
-    return null;
-} finally {
-    await client.end(); // Close the connection
+      if (result.rows.length > 0) {
+          // If a user with the given username exists, return their email
+          return result.rows[0].email;
+      } else {
+          // If no user with the given username exists, return null
+          return null;
+      }
+  } catch (error) {
+      console.error('Error retrieving user email:', error);
+      return null;
+  }
 }
-}
+
 
 //exporting the functions
 module.exports = { pool, initializeDb, registerUser,  loginUser, writeBlog, readBlogs, getUserId, userBlogs, deleteBlog, updateBlogText, getBlogById, getEmail};

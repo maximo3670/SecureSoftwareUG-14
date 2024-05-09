@@ -14,7 +14,7 @@ Description:
 */
 
 const express = require('express');
-const { registerUser, getBlogById, loginUser, writeBlog, readBlogs, getUserId, userBlogs, updateBlogText, deleteBlog } = require('./db');
+const { registerUser, getBlogById, loginUser, writeBlog, readBlogs, getUserId, userBlogs, updateBlogText, deleteBlog, getEmail } = require('./db');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const path = require('path');
@@ -267,42 +267,50 @@ app.post('/updateBlog', checkSession, csrfProtection, async (req, res) => {
   }
 });
 
-app.post('/send-email', (req, res) => {
-  const { to, subject, text, html } = req.body;
+app.post('/send-email', async (req, res) => {
+  const { Username, subject, text, html } = req.body;
 
-  // Ensure that the target email address is provided
-  if (!to) {
-      return res.status(400).json({ success: false, error: 'Target email address is required' });
-  }
+  try {
+    // Fetch the recipient email address
+    const recipientEmail = await getEmail(Username);
 
-  // Create a transporter object using SMTP transport
-  const transporter = nodemailer.createTransport({
+    if (!recipientEmail) {
+      console.error('Error: No email available for the provided username');
+      return res.status(400).json({ success: false, error: 'No email available' });
+    }
+
+    // Create a transporter object using SMTP transport
+    const transporter = nodemailer.createTransport({
       service: 'hotmail',
       auth: {
-          user: 'donotreplygamersgarden@outlook.com', // Your email address
-          pass: 'z&y;X:YVtHp2Q=m~g}R#DM' // Your email password or app-specific password
+        user: 'donotreplygamersgarden@outlook.com', // Your email address
+        pass: 'z&y;X:YVtHp2Q=m~g}R#DM' // Your email password or app-specific password
       }
-  });
+    });
 
-  // Setup email data
-  const mailOptions = {
+    // Setup email data
+    const mailOptions = {
       from: 'donotreplygamersgarden@outlook.com', // Sender address
-      to, // Recipient address
+      to: recipientEmail, // Recipient address
       subject, // Subject line
       text, // Plain text body
       html // HTML body
-  };
+    };
 
-  // Send email
-  transporter.sendMail(mailOptions, (error, info) => {
+    // Send email
+    transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-          console.error('Error occurred while sending email:', error);
-          return res.status(500).json({ success: false, error: 'Failed to send email', details: error });
+        console.error('Error occurred while sending email:', error);
+        return res.status(500).json({ success: false, error: 'Failed to send email', details: error });
       } else {
-          console.log('Email sent:', info.response);
-          return res.json({ success: true });
+        console.log('Email sent:', info.response);
+        return res.json({ success: true });
       }
-  });
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    return res.status(500).json({ success: false, error: 'An unexpected error occurred', details: error });
+  }
 });
 
 /*
