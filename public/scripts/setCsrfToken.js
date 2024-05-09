@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function() {
       forms.forEach(form => {
         const input = document.createElement('input');
         input.type = 'hidden';
-        input.name = 'csrf';
+        input.name = '_csrf';
         input.value = data.csrfToken;
         form.appendChild(input);
       });

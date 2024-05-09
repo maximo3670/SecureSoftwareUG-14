@@ -20,10 +20,7 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const app = express();
 const uuidv4 = require('uuid').v4;
-const csrf = require('csurf');
 const sessions = {};
-const csrfProtection = csrf({ cookie: true });
-app.use(express.urlencoded({ extended: true }));
 
 //Package to prevent XSS attacks
 //DOM Purify
@@ -72,7 +69,7 @@ function checkSession(req, res, next) {
   }
 }
 
-app.post('/register', csrfProtection, async (req, res) => {
+app.post('/register',  async (req, res) => {
   //Getting the information from the form
   let { Username, Password, ConfirmPassword, Firstname, Lastname, Email } = req.body;
 
@@ -111,7 +108,7 @@ app.post('/register', csrfProtection, async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
 }});
 
-app.post('/writeblog', csrfProtection, checkSession, async (req, res) => {    //checkSession ran
+app.post('/writeblog',  checkSession, async (req, res) => {    //checkSession ran
 
   let { title, text } = req.body;
 
@@ -136,7 +133,7 @@ app.post('/writeblog', csrfProtection, checkSession, async (req, res) => {    //
 
 const delay = (duration) => new Promise(resolve => setTimeout(resolve, duration));
 
-app.post('/login', csrfProtection, async (req, res) => {
+app.post('/login',  async (req, res) => {
 
   const startTime = Date.now();
 
@@ -231,7 +228,7 @@ app.get('/logout', (req, res) => {
   res.redirect('/login');
 });
 
-app.post('/deleteBlog', checkSession, csrfProtection,async (req, res) => {
+app.post('/deleteBlog', checkSession, async (req, res) => {
   const { blogid } = req.body;
 
   try {
@@ -247,7 +244,7 @@ app.post('/deleteBlog', checkSession, csrfProtection,async (req, res) => {
   }
 });
 
-app.post('/updateBlog', checkSession, csrfProtection, async (req, res) => {
+app.post('/updateBlog', checkSession,  async (req, res) => {
   let { blogid, title, text } = req.body;
 
   title = DOMPurify.sanitize(title);
@@ -271,7 +268,7 @@ All Get requests regarding webpages are in this section.
 Follow same convention for any new webpages added.
 */
 
-app.get('/getBlog/:blogid', csrfProtection, async (req, res) => {
+app.get('/getBlog/:blogid',  async (req, res) => {
   const { blogid } = req.params;
   try {
       const blog = await getBlogById({ blogid }); // This function should query your database
@@ -285,16 +282,12 @@ app.get('/getBlog/:blogid', csrfProtection, async (req, res) => {
   }
 });
 
-app.get('/csrf-token', csrfProtection, (req, res) => {
-  res.json({ csrfToken: req.csrfToken() });
-});
-
 app.get('/check-session', (req, res) => {
   const loggedIn = req.cookies && req.cookies.session && sessions[req.cookies.session];
   res.json({ loggedIn: loggedIn });
 });
 
-app.get('/account/updateBlog', checkSession, csrfProtection, (req, res) => {
+app.get('/account/updateBlog', checkSession,  (req, res) => {
   res.sendFile(path.join(__dirname, 'public/pages/updateBlog.html'));
 });
 
@@ -302,19 +295,19 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/pages/index.html'));
 });
 
-app.get('/blogs',  csrfProtection, (req, res) => {
+app.get('/blogs',   (req, res) => {
   res.sendFile(path.join(__dirname, 'public/pages/blogs.html'));
 });
 
-app.get('/writeblog', csrfProtection, (req, res) => {
+app.get('/writeblog',  (req, res) => {
   res.sendFile(path.join(__dirname, 'public/pages/writeblog.html'));
 });
 
-app.get('/account', csrfProtection, (req, res) => {
+app.get('/account',  (req, res) => {
   res.sendFile(path.join(__dirname, 'public/pages/account.html'));
 });
 
-app.get('/login', csrfProtection, (req, res) => {
+app.get('/login',  (req, res) => {
   res.sendFile(path.join(__dirname, 'public/pages/login.html'));
 });
 
@@ -322,7 +315,7 @@ app.get('/news', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/pages/news.html'));
 });
 
-app.get('/register', csrfProtection, (req, res) => {
+app.get('/register',  (req, res) => {
   res.sendFile(path.join(__dirname, 'public/pages/register.html'));
 });
 
