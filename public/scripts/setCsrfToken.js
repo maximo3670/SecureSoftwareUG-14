@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
-  fetch('/csrf-token')
+  fetch('/get-csrf-token')
     .then(response => response.json())
     .then(data => {
       const forms = document.querySelectorAll('form');

@@ -16,11 +16,24 @@ Description:
 const express = require('express');
 const { registerUser, getBlogById, loginUser, writeBlog, readBlogs, getUserId, userBlogs, updateBlogText, deleteBlog } = require('./db');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
 const path = require('path');
-const app = express();
 const uuidv4 = require('uuid').v4;
 const sessions = {};
+
+//CSRF Mitigation
+const cookieParser = require('cookie-parser');
+const csrf = require('csurf');
+
+const app = express();
+app.use(cookieParser())
+
+const csrfProtection = csrf({ cookie: true });
+app.use(express.static('public'));
+
+app.get('/get-csrf-token', csrfProtection, (req, res) => {
+  // Send the CSRF token to the client
+  res.json({ csrfToken: req.csrfToken() });
+});
 
 //Package to prevent XSS attacks
 //DOM Purify
@@ -108,7 +121,7 @@ app.post('/register',  async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
 }});
 
-app.post('/writeblog',  checkSession, async (req, res) => {    //checkSession ran
+app.post('/writeblog', checkSession, csrfProtection, async (req, res) => {    //checkSession ran
 
   let { title, text } = req.body;
 
@@ -133,7 +146,7 @@ app.post('/writeblog',  checkSession, async (req, res) => {    //checkSession ra
 
 const delay = (duration) => new Promise(resolve => setTimeout(resolve, duration));
 
-app.post('/login',  async (req, res) => {
+app.post('/login', async (req, res) => {
 
   const startTime = Date.now();
 
@@ -299,7 +312,7 @@ app.get('/blogs',   (req, res) => {
   res.sendFile(path.join(__dirname, 'public/pages/blogs.html'));
 });
 
-app.get('/writeblog',  (req, res) => {
+app.get('/writeblog', checkSession, csrfProtection, (req, res) => {
   res.sendFile(path.join(__dirname, 'public/pages/writeblog.html'));
 });
 
