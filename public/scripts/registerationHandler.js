@@ -13,19 +13,33 @@ Description:
 document.getElementById("login").addEventListener("submit", function(event){
     event.preventDefault(); 
   
+    var Username = document.getElementsByName("Username")[0].value;
+    var Password = document.getElementsByName("Password")[0].value;
+    var ConfirmPassword = document.getElementsByName("ConfirmPassword")[0].value;
+    var Firstname = document.getElementsByName("Firstname")[0].value;
+    var Lastname = document.getElementsByName("Lastname")[0].value;
+    var Email = document.getElementsByName("Email")[0].value;
+    var csrfToken = document.getElementsByName("_csrf")[0].value;
+
+    console.log(csrfToken);
+
     //Getting the data from the form
     var formData = {
-        Username: document.getElementsByName("Username")[0].value,
-        Password: document.getElementsByName("Password")[0].value,
-        ConfirmPassword: document.getElementsByName("ConfirmPassword")[0].value,
-        Firstname: document.getElementsByName("Firstname")[0].value,
-        Lastname: document.getElementsByName("Lastname")[0].value,
-        Email: document.getElementsByName("Email")[0].value
+        Username: Username,
+        Password: Password,
+        ConfirmPassword: ConfirmPassword,
+        Firstname: Firstname,
+        Lastname: Lastname,
+        Email: Email,
+        _csrf: csrfToken 
     };
+
+    console.log(formData);
   
     // Perform the fetch request
     fetch('/register', {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },

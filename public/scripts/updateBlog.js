@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         fetch('/updateBlog', {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json'
             },

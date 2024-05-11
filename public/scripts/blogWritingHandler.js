@@ -10,6 +10,7 @@ document.getElementById("blog").addEventListener("submit", function(event){
     // Perform the fetch request
     fetch('/writeblog', {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },

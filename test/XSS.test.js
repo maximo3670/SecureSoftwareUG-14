@@ -6,21 +6,22 @@ describe('XSS Attack Prevention Tests with Session and CSRF Token', function() {
     let csrfToken, cookie;
 
     before(async function() {
+        // Log in to get the session cookie
         const loginResponse = await request(server)
             .post('/login')
-            .send({ Username: 'validUser', Password: 'validPassword' });
+            .send({ Username: 'Max', Password: 'Password123!' });
 
-        console.log('Headers after login:', loginResponse.headers); // Debug headers
-
+        // Extract and store the cookie
         const cookies = loginResponse.headers['set-cookie'];
         cookie = cookies.map(cookie => cookie.split(';')[0]).join(';');
-        console.log('Extracted cookies:', cookie); // Debug extracted cookies
 
-        const csrfCookie = cookies.find(cookie => cookie.startsWith('_csrf'));
-        if (csrfCookie) {
-            csrfToken = csrfCookie.split('=')[1].split(';')[0];
-            console.log('Extracted CSRF Token:', csrfToken); // Debug CSRF token
-        }
+        // Fetch the CSRF token using the session cookie
+        const tokenResponse = await request(server)
+            .get('/csrf-token')
+            .set('Cookie', cookie);
+
+        // Store the CSRF token from the response
+        csrfToken = tokenResponse.body.csrfToken;
     });
 
     it('should prevent XSS in login with CSRF token', async function() {

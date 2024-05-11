@@ -15,26 +15,29 @@ Description:
 
 const express = require('express');
 const { registerUser, getBlogById, loginUser, writeBlog, readBlogs, getUserId, userBlogs, updateBlogText, deleteBlog, getEmail } = require('./db');
-const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const path = require('path');
-const app = express();
+
 const nodemailer = require('nodemailer');
 const uuidv4 = require('uuid').v4;
 const csrf = require('csurf');
 const sessions = {};
-const csrfProtection = csrf({ cookie: true });
-app.use(express.urlencoded({ extended: true }));
 require('dotenv').config({ path: './email.env' });
-
-//Package to prevent XSS attacks
-//DOM Purify
+// DOM Purification
 const { JSDOM } = require('jsdom');
 const window = (new JSDOM('')).window;
 const DOMPurify = require('dompurify')(window);
-app.use(bodyParser.json());
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+
+const app = express();
+
+app.use(express.json()); // Built-in middleware for JSON
+app.use(express.urlencoded({ extended: true })); // Built-in middleware to handle URL encoded data
+
+// CSRF Protection
+const csrfProtection = csrf({ cookie: true });
+app.use(cookieParser()); // To parse cookies
+app.use(csrfProtection); // CSRF protection after cookie parsing
+app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
 
 
 /*

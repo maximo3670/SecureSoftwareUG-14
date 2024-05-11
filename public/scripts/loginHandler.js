@@ -62,11 +62,19 @@ window.addEventListener('load', initializePage);
 document.getElementById("login").addEventListener("submit", function(event) {
     event.preventDefault();
    
+
+    var Username = document.getElementsByName("Username")[0].value;
+    var Password = document.getElementsByName("Password")[0].value;
+    var csrfToken = document.getElementsByName("_csrf")[0].value;
+
     // Getting the data from the form
     var formData = {
-        Username: document.getElementsByName("Username")[0].value,
-        Password: document.getElementsByName("Password")[0].value,
+        Username: Username,
+        Password: Password,
+        _csrf: csrfToken  // Adding the CSRF token into the formData
     };
+
+    console.log(formData);
 
     const OTP = document.getElementsByName("OTP")[0].value;
 
@@ -84,6 +92,7 @@ document.getElementById("login").addEventListener("submit", function(event) {
     else{
         fetch('/login', {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -118,6 +127,7 @@ document.getElementById("login").addEventListener("submit", function(event) {
                     }
                     fetch('/send-email', {
                         method: 'POST',
+                        credentials: 'include',
                         headers: {
                             'Content-Type': 'application/json',
                         },
