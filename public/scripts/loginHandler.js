@@ -111,23 +111,23 @@ document.getElementById("login").addEventListener("submit", function(event) {
                     storedOTP = generateOTP()
                     document.getElementById("feedbackMessage").textContent = "You have not been verified via two-factor authentication. We have sent out an email tied to your account";
                     const emailData = {
-                    Username: formData.Username, // Target email address
-                    subject: 'YOUR ONE TIME PASSWORD',
-                    html: `<body style="margin: 0;
-                    padding: 0;
-                    width: auto;
-                    height:100%;
-                    background: #c0e6c0">
-                    <div class="center">
-                        <img src="../Images/Logo.png">
-                        <h2>Please use this 6 digit code to verify yourself.</h2>
-                        <h1>${storedOTP}</h1>
-                    </div>
-                </body>`
+                        Username: formData.Username, // Target email address
+                        subject: 'YOUR ONE TIME PASSWORD',
+                        html: `<body style="margin: 0;
+                            padding: 0;
+                            width: auto;
+                            height:100%;
+                            background: #c0e6c0">
+                            <div class="center">
+                                <img src="../Images/Logo.png">
+                                <h2>Please use this 6 digit code to verify yourself.</h2>
+                                <h1>${storedOTP}</h1>
+                            </div>
+                        </body>`,
+                        _csrf: csrfToken
                     }
                     fetch('/send-email', {
                         method: 'POST',
-                        credentials: 'include',
                         headers: {
                             'Content-Type': 'application/json',
                         },
