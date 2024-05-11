@@ -17,7 +17,7 @@ const express = require('express');
 const { registerUser, getBlogById, loginUser, writeBlog, readBlogs, getUserId, userBlogs, updateBlogText, deleteBlog, getEmail } = require('./db');
 const cookieParser = require('cookie-parser');
 const path = require('path');
-
+const rateLimit = require('express-rate-limit');
 const nodemailer = require('nodemailer');
 const uuidv4 = require('uuid').v4;
 const csrf = require('csurf');
@@ -32,6 +32,14 @@ const app = express();
 
 app.use(express.json()); // Built-in middleware for JSON
 app.use(express.urlencoded({ extended: true })); // Built-in middleware to handle URL encoded data
+
+
+// Apply rate limiting to all requests
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 300 // limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
 
 // CSRF Protection
 const csrfProtection = csrf({ cookie: true });
