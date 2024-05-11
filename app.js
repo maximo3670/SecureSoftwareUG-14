@@ -25,6 +25,7 @@ const csrf = require('csurf');
 const sessions = {};
 const csrfProtection = csrf({ cookie: true });
 app.use(express.urlencoded({ extended: true }));
+require('dotenv').config({ path: './email.env' });
 
 //Package to prevent XSS attacks
 //DOM Purify
@@ -283,6 +284,9 @@ app.post('/send-email', async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: 'hotmail',
       auth: {
+        user: process.env.EMAIL_USERNAME, // Your email address
+        pass: process.env.EMAIL_PASSWORD // Your email password or app-specific password
+      }
         user: 'donotreplygamersgarden@outlook.com', // Your email address
         pass: 'z&y;X:YVtHp2Q=m~g}R#DM' // Your email password or app-specific password
       },
@@ -293,7 +297,7 @@ app.post('/send-email', async (req, res) => {
 
     // Setup email data
     const mailOptions = {
-      from: 'donotreplygamersgarden@outlook.com', // Sender address
+      from: process.env.EMAIL_USERNAME, // Sender address
       to: recipientEmail, // Recipient address
       subject, // Subject line
       text, // Plain text body
