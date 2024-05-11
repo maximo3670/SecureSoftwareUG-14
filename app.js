@@ -285,7 +285,10 @@ app.post('/send-email', async (req, res) => {
       auth: {
         user: 'donotreplygamersgarden@outlook.com', // Your email address
         pass: 'z&y;X:YVtHp2Q=m~g}R#DM' // Your email password or app-specific password
-      }
+      },
+      tls: {
+        rejectUnauthorized: false
+    }
     });
 
     // Setup email data
@@ -296,6 +299,8 @@ app.post('/send-email', async (req, res) => {
       text, // Plain text body
       html // HTML body
     };
+
+    console.log(mailOptions);
 
     // Send email
     transporter.sendMail(mailOptions, (error, info) => {
