@@ -5,6 +5,7 @@ document.getElementById("blog").addEventListener("submit", function(event){
     var formData = {
         title: document.getElementsByName("title")[0].value,
         text: document.getElementsByName("text")[0].value,
+        _csrf: document.getElementsByName("_csrf")[0].value
     };
   
     // Perform the fetch request

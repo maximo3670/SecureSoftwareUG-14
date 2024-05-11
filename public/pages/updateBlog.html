@@ -23,7 +23,6 @@
     <div id="main">
         <div id="feedbackMessage"></div>
         <form id="blog">
-            <input type="hidden" name="_csrf" value="token_from_cookie">
             <label for = "title">Title</label>
             <input id="title" type="text" name="title" value="" required></input><br>
             <label for="text">Blog</label>
@@ -33,5 +32,6 @@
     </div>
     <script src="../scripts/logoutHandler.js"></script>
     <script src="../scripts/updateBlog.js"></script>
+    <script src="../scripts/setCsrfToken.js"></script>
 </body>
 </html>
