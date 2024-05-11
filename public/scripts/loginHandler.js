@@ -106,6 +106,7 @@ document.getElementById("login").addEventListener("submit", function(event) {
                     twoFA.timestamp = Date.now()
                     localStorage.setItem("twoFA", JSON.stringify(twoFA));
                     document.getElementById("feedbackMessage").textContent = "Login successful!";
+                    window.location.replace('./blogs');
                 }
                 else{
                     storedOTP = generateOTP()

@@ -127,7 +127,6 @@ async function loginUser({ Username, Password }) {
 
     if (userResult.rowCount > 0) {
       const user = userResult.rows[0];
-
       // Compare the provided password with the hashed password in the database
       const isMatch = await bcrypt.compare(Password, user.password);
       if (isMatch) {
