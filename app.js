@@ -286,9 +286,6 @@ app.post('/send-email', async (req, res) => {
       auth: {
         user: process.env.EMAIL_USERNAME, // Your email address
         pass: process.env.EMAIL_PASSWORD // Your email password or app-specific password
-      }
-        user: 'donotreplygamersgarden@outlook.com', // Your email address
-        pass: 'z&y;X:YVtHp2Q=m~g}R#DM' // Your email password or app-specific password
       },
       tls: {
         rejectUnauthorized: false
