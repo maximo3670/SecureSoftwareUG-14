@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", function() {
         input.type = 'hidden';
         input.name = '_csrf'; 
         input.value = data.csrfToken;
-        console.log(input);
         form.appendChild(input);
       });
     })

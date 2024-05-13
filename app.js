@@ -74,11 +74,7 @@ function validatePassword(password) {
 function checkSession(req, res, next) {
   const sessionId = req.cookies ? req.cookies.session : undefined;
 
-  console.log("SessionID: ", sessionId);
-  console.log("Sessions:", sessions);
-
   if (sessionId && sessions[sessionId]) {
-    console.log("UserID: ", sessions[sessionId].UserID);
     next();
   } else {
     res.status(401).json({ success: false, message: "This action requires you to be logged in." });
@@ -130,13 +126,9 @@ app.post('/writeblog', csrfProtection, checkSession, async (req, res) => {    //
 
   const sessionId = req.cookies ? req.cookies.session : undefined;
 
-  console.log("SessinID:", sessionId)
-
   //XSS protection
   title = DOMPurify.sanitize(title);
   text = DOMPurify.sanitize(text);
-
-  console.log({ title: title, text: text, UserID: sessions[sessionId].UserID })
 
   try {
     await writeBlog({ userID: sessions[sessionId].UserID, title: title, text: text });
@@ -280,7 +272,9 @@ app.post('/updateBlog', checkSession, csrfProtection, async (req, res) => {
 });
 
 app.post('/send-email', async (req, res) => {
-  const { Username, subject, text, html } = req.body;
+  let { Username, subject, text, html } = req.body;
+
+  Username = DOMPurify.sanitize(Username);
 
   try {
     // Fetch the recipient email address
@@ -349,7 +343,7 @@ app.get('/getBlog/:blogid', csrfProtection, async (req, res) => {
   }
 });
 
-app.get('/csrf-token', csrfProtection, (req, res) => {
+app.get('/csrf-token', (req, res) => {
   res.json({ csrfToken: req.csrfToken() });
 });
 

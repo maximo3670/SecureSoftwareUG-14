@@ -50,12 +50,20 @@ function displayBlogs(blogs) {
 
 async function deleteBlog(blogid) {
     try {
+        const tokenResponse = await fetch('/csrf-token');
+        if (!tokenResponse.ok) {
+            throw new Error('Failed to fetch CSRF token');
+        }
+        const tokenData = await tokenResponse.json();
+        const _csrf = tokenData.csrfToken;
+
         const response = await fetch(`/deleteBlog`, {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ blogid })
+            body: JSON.stringify({ blogid, _csrf })
         });
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
