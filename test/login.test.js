@@ -23,10 +23,8 @@ describe('Login Tests with CSRF Protection', function() {
                 response = await request(server)
                     .post('/login')
                     .set('Cookie', cookie)
-                    .set('CSRF-Token', csrfToken)
-                    .send({ Username: 'Max', Password: 'Password123!' });
+                    .send({ Username: 'Max', Password: 'Password123!', _csrf: csrfToken });
                 
-                console.log(response.body);
                 assert.strictEqual(response.status, 200, 'Failed to log in with correct credentials');
                 assert.strictEqual(response.body.message, 'Login successful!', 'Unexpected response message');
             } catch (error) {
@@ -44,7 +42,7 @@ describe('Login Tests with CSRF Protection', function() {
                     .post('/login')
                     .set('Cookie', cookie)
                     .set('CSRF-Token', csrfToken)
-                    .send({ Username: 'NonexistingUser', Password: 'Password123!' });
+                    .send({ Username: 'NonexistingUser', Password: 'Password123!', _csrf: csrfToken  });
 
                 assert.strictEqual(response.status, 401, 'Incorrectly allowed login with wrong credentials');
                 assert.strictEqual(response.body.message, 'Username or password is incorrect.', 'Unexpected or missing error message');
@@ -67,7 +65,7 @@ describe('Login Tests with CSRF Protection', function() {
                     .post('/login')
                     .set('Cookie', cookie)
                     .set('CSRF-Token', csrfToken)
-                    .send({ Username: 'nonexistinguser', Password: 'password123' });
+                    .send({ Username: 'nonexistinguser', Password: 'password123', _csrf: csrfToken  });
             } catch (error) {
                 responseNonExisting = error.response;
             }
@@ -81,7 +79,7 @@ describe('Login Tests with CSRF Protection', function() {
                     .post('/login')
                     .set('Cookie', cookie)
                     .set('CSRF-Token', csrfToken)
-                    .send({ Username: 'Max', Password: 'wrongpassword' });
+                    .send({ Username: 'Max', Password: 'wrongpassword', _csrf: csrfToken });
             } catch (error) {
                 responseExisting = error.response;
             }
