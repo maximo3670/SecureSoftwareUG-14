@@ -1,7 +1,7 @@
 /*
 registrationHandler.js
 
-Author: Jonthan Belt, Max Neil
+Author: Jonthan Belt, Max Neil, Mitchell Layzell
 Date created: 21/03/2024
 Description: 
     
@@ -31,7 +31,7 @@ function initializePage() {
  
   // Check if the lockout has expired
   if (lockoutData.attempts >= maxAttempts && !isLockoutExpired(lockoutData)) {
-      document.getElementById("feedbackMessage").textContent = "You have temporarily locked out. Come back later";
+      document.getElementById("feedbackMessage").textContent = "You have been temporarily locked out. Come back later";
       document.getElementById("submit").style.display = "none"; // Fixing this, 'none' should be a string
   }
   if(isLockoutExpired(lockoutData)){
@@ -85,7 +85,7 @@ document.getElementById("login").addEventListener("submit", function(event) {
  
    
     if (lockoutData.attempts >= maxAttempts && !isLockoutExpired(lockoutData)) {
-        document.getElementById("feedbackMessage").textContent = "You have temporarily locked out. Come back later";
+        document.getElementById("feedbackMessage").textContent = "You have been temporarily locked out. Come back later";
         document.getElementById("submit").style.display = "none"; // Fixing this, 'none' should be a string
 
     }
@@ -154,7 +154,7 @@ document.getElementById("login").addEventListener("submit", function(event) {
                 lockoutData.attempts++;
                 lockoutData.timestamp = Date.now();
                 localStorage.setItem("loginLockout", JSON.stringify(lockoutData));
-                document.getElementById("feedbackMessage").textContent = "Login failed. Please try again.";
+                document.getElementById("feedbackMessage").textContent = "Either username or password are incorrect";
             }
         });
     }
