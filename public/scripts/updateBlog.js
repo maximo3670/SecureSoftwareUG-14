@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const title = document.getElementById('title').value;
         const text = document.getElementById('text').value;
+        var csrfToken = document.getElementsByName("_csrf")[0].value;
 
         if (!title || !text) {
             alert('Title and text are required.');
@@ -33,11 +34,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const updatedBlog = {
             blogid: blogid,
             title: title,
-            text: text
+            text: text,
+            _csrf: csrfToken
         };
 
         fetch('/updateBlog', {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json'
             },

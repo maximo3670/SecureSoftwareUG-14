@@ -14,26 +14,38 @@ Description:
 */
 
 const express = require('express');
-const { registerUser, getBlogById, loginUser, writeBlog, readBlogs, getUserId, userBlogs, updateBlogText, deleteBlog } = require('./db');
-const bodyParser = require('body-parser');
+const { registerUser, getBlogById, loginUser, writeBlog, readBlogs, getUserId, userBlogs, updateBlogText, deleteBlog, getEmail } = require('./db');
 const cookieParser = require('cookie-parser');
 const path = require('path');
-const app = express();
+const rateLimit = require('express-rate-limit');
 const nodemailer = require('nodemailer');
 const uuidv4 = require('uuid').v4;
 const csrf = require('csurf');
 const sessions = {};
-const csrfProtection = csrf({ cookie: true });
-app.use(express.urlencoded({ extended: true }));
-
-//Package to prevent XSS attacks
-//DOM Purify
+require('dotenv').config({ path: './email.env' });
+// DOM Purification
 const { JSDOM } = require('jsdom');
 const window = (new JSDOM('')).window;
 const DOMPurify = require('dompurify')(window);
-app.use(bodyParser.json());
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+
+const app = express();
+
+app.use(express.json()); // Built-in middleware for JSON
+app.use(express.urlencoded({ extended: true })); // Built-in middleware to handle URL encoded data
+
+
+// Apply rate limiting to all requests
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 300 // limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
+
+// CSRF Protection
+const csrfProtection = csrf({ cookie: true });
+app.use(cookieParser()); // To parse cookies
+app.use(csrfProtection); // CSRF protection after cookie parsing
+app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
 
 
 /*
@@ -267,42 +279,55 @@ app.post('/updateBlog', checkSession, csrfProtection, async (req, res) => {
   }
 });
 
-app.post('/send-email', (req, res) => {
-  const { to, subject, text, html } = req.body;
+app.post('/send-email', async (req, res) => {
+  const { Username, subject, text, html } = req.body;
 
-  // Ensure that the target email address is provided
-  if (!to) {
-      return res.status(400).json({ success: false, error: 'Target email address is required' });
-  }
+  try {
+    // Fetch the recipient email address
+    const recipientEmail = await getEmail(Username);
 
-  // Create a transporter object using SMTP transport
-  const transporter = nodemailer.createTransport({
+    if (!recipientEmail) {
+      console.error('Error: No email available for the provided username');
+      return res.status(400).json({ success: false, error: 'No email available' });
+    }
+
+    // Create a transporter object using SMTP transport
+    const transporter = nodemailer.createTransport({
       service: 'hotmail',
       auth: {
-          user: 'donotreplygamersgarden@outlook.com', // Your email address
-          pass: 'z&y;X:YVtHp2Q=m~g}R#DM' // Your email password or app-specific password
-      }
-  });
+        user: 'donotreplygamersgarden@outlook.com', // Your email address
+        pass: 'z&y;X:YVtHp2Q=m~g}R#DM' // Your email password or app-specific password
+      },
+      tls: {
+        rejectUnauthorized: false
+    }
+    });
 
-  // Setup email data
-  const mailOptions = {
-      from: 'donotreplygamersgarden@outlook.com', // Sender address
-      to, // Recipient address
+    // Setup email data
+    const mailOptions = {
+      from: process.env.EMAIL_USERNAME, // Sender address
+      to: recipientEmail, // Recipient address
       subject, // Subject line
       text, // Plain text body
       html // HTML body
-  };
+    };
 
-  // Send email
-  transporter.sendMail(mailOptions, (error, info) => {
+    console.log(mailOptions);
+
+    // Send email
+    transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-          console.error('Error occurred while sending email:', error);
-          return res.status(500).json({ success: false, error: 'Failed to send email', details: error });
+        console.error('Error occurred while sending email:', error);
+        return res.status(500).json({ success: false, error: 'Failed to send email', details: error });
       } else {
-          console.log('Email sent:', info.response);
-          return res.json({ success: true });
+        console.log('Email sent:', info.response);
+        return res.json({ success: true });
       }
-  });
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    return res.status(500).json({ success: false, error: 'An unexpected error occurred', details: error });
+  }
 });
 
 /*
