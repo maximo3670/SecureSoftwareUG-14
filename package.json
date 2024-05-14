@@ -27,7 +27,9 @@
     "nodemon": "^3.1.0",
     "pg": "^8.11.3",
     "prompt-sync": "^4.2.0",
-    "supertest": "^7.0.0",
     "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "supertest": "^7.0.0"
   }
 }
