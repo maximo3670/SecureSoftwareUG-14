@@ -13,7 +13,7 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
-    "chai": "^5.1.0",
+    "chai": "^5.1.1",
     "cookie-parser": "^1.4.6",
     "csurf": "^1.11.0",
     "dompurify": "^3.0.11",
@@ -26,6 +26,7 @@
     "nodemailer": "^6.9.13",
     "nodemon": "^3.1.0",
     "pg": "^8.11.3",
+    "prompt-sync": "^4.2.0",
     "supertest": "^7.0.0",
     "uuid": "^9.0.1"
   }
