@@ -115,7 +115,7 @@ async function registerUser({ Username, Password, Firstname, Lastname, Email}) {
 
     if (existingUser.rowCount > 0) {
       // If a user is found, throw an error
-      throw new Error('Username or email already exists.');
+      throw new Error('Username already exists.');
     }
 
     // Hashing the password with Bycrypt
