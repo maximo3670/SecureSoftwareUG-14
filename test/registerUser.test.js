@@ -27,6 +27,7 @@ describe('Register User Tests', function(){
                     .send({Username: 'Ed', Password: 'Password123!', ConfirmPassword: 'Password123!', Firstname: 'Ed', Lastname: 'Ward', Email: 'wardy2@live.co.uk', _csrf: csrfToken});
 
                 console.log(response.body);
+
                 assert.strictEqual(response.status, 200, 'Failed to register a new user!');
                 assert.strictEqual(response.body.message, 'User Registered Successfully!', 'Unexpected response message');
 
