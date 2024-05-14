@@ -2,7 +2,22 @@ const assert = require('assert');
 const request = require('supertest');
 const server = require('../app');
 
-describe('Login Tests with CSRF Protection', function() {
+/*
+login.test.js
+
+Author: Max Neil
+Created: 12/05/2024
+Description:
+This is a test script written to test the login system of the website
+
+It tests:
+1. Correct login details
+2. Incorrect login details
+3. Account enumeration timing
+
+*/
+
+describe('Login Tests', function() {
     let csrfToken, cookie;
 
     // Fetch CSRF token and session cookie before running tests

@@ -13,6 +13,7 @@ Description:
 document.getElementById("login").addEventListener("submit", function(event){
     event.preventDefault(); 
   
+    //Getting the data from the form
     var Username = document.getElementsByName("Username")[0].value;
     var Password = document.getElementsByName("Password")[0].value;
     var ConfirmPassword = document.getElementsByName("ConfirmPassword")[0].value;
@@ -20,10 +21,6 @@ document.getElementById("login").addEventListener("submit", function(event){
     var Lastname = document.getElementsByName("Lastname")[0].value;
     var Email = document.getElementsByName("Email")[0].value;
     var csrfToken = document.getElementsByName("_csrf")[0].value;
-
-    console.log(csrfToken);
-
-    //Getting the data from the form
     var formData = {
         Username: Username,
         Password: Password,
@@ -33,8 +30,6 @@ document.getElementById("login").addEventListener("submit", function(event){
         Email: Email,
         _csrf: csrfToken 
     };
-
-    console.log(formData);
   
     // Perform the fetch request
     fetch('/register', {

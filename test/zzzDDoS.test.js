@@ -2,6 +2,19 @@ const assert = require('assert');
 const request = require('supertest');
 const server = require('../app');
 
+/*
+DDoD.test.js
+
+Author: Max Neil
+Created: 12/05/2024
+Description:
+This is a test script written to test the system security against DDoS attacks
+It does this by overloading the server with requests to see how it handles it
+
+It tests:
+1. Overloading server with login requests 
+
+*/
 describe('DDoS Protection Tests', function() {
     let csrfToken, cookie;
 
@@ -16,10 +29,11 @@ describe('DDoS Protection Tests', function() {
     });
 
     it('should block requests after rate limit is exceeded', async function() {
-        this.timeout(20000); // Extend timeout to allow all requests to be sent and processed
+        // Extend timeout to allow all requests to be sent and processed
+        this.timeout(20000); 
 
-        // Send a number of requests slightly above the limit
-        const limit = 310;  // Assuming the limit is set to 300 requests per 15 minutes
+        // Send a number of requests slightly above the limit which is 300
+        const limit = 310;  
         let responses = [];
         
         for (let i = 0; i < limit; i++) {

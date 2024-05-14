@@ -2,7 +2,21 @@ const assert = require('assert');
 const request = require('supertest');
 const server = require('../app');
 
-describe('XSS Attack Prevention Tests with Session and CSRF Token', function() {
+/*
+XSS.test.js
+
+Author: Max Neil
+Created: 12/05/2024
+Description:
+This is a test script written to test the system security against cross site scripting attacks
+it attempts the insert malicious code into the webpage.
+
+It tests:
+All forms on the webpage against XSS inputs
+
+*/
+
+describe('XSS Attack Prevention Tests', function() {
     let csrfToken, cookie;
 
     before(async function() {
@@ -31,7 +45,6 @@ describe('XSS Attack Prevention Tests with Session and CSRF Token', function() {
             .set('CSRF-Token', csrfToken)
             .send({ Username: "Max<script>alert('xss');</script>", Password: "Password123!<script>alert('xss');</script>" });
 
-        console.log('Response:', response.body); // Debug response body
         assert.strictEqual(response.status, 200, 'Expected login to succeed since inputs should be sanitized');
     });
 
