@@ -284,7 +284,9 @@ app.post('/send-email', async (req, res) => {
 
   try {
     // Fetch the recipient email address
-    const recipientEmail = await getEmail(Username);
+    const recipientEmail = await getEmail({Username});
+
+    console.log(recipientEmail);
 
     if (!recipientEmail) {
       console.error('Error: No email available for the provided username');
