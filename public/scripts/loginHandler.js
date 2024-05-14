@@ -43,7 +43,7 @@ function initializePage() {
     localStorage.setItem("loginLockout", JSON.stringify(lockoutData));
   }
 
-  if(is2FAExpired(twoFA)){ // Checks the boolean of if the user is already 2 fqactor authenticated 
+  if(is2FAExpired(twoFA)){
     twoFA.verified == false;
     localStorage.setItem("twoFA", JSON.stringify(twoFA));
 
@@ -52,12 +52,12 @@ function initializePage() {
 
 function isLockoutExpired(lockoutData) {
     if (!lockoutData.timestamp) return true; // Lockout never occurred
-    return (Date.now() - lockoutData.timestamp) > lockoutDuration; // Returns the duration if there is an exisiting lockout
+    return (Date.now() - lockoutData.timestamp) > lockoutDuration;
 }
 
 function is2FAExpired(twoFA){
     if(!twoFA.timestamp) return true;
-    return (Date.now() - twoFA.timestamp) > 14 * 24 * 60 * 60 * 1000; // Checks if the difference of the timestamp is more than 2 weeks 
+    return (Date.now() - twoFA.timestamp) > 14 * 24 * 60 * 60 * 1000;
 }
  
 // Call the initialization function when the page loads or returns to the page
