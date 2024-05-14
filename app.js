@@ -243,7 +243,8 @@ app.get('/logout', (req, res) => {
   const sessionId = req.cookies.session;
   if (sessionId) {
       delete sessions[sessionId]; 
-      res.clearCookie('session'); 
+      res.clearCookie('session');
+      res.clearCookie('_csrf')
   }
   res.redirect('/login');
 });
