@@ -4,7 +4,8 @@ Encryption.js
 Author: Edward Ward
 
 Description:
-    This script is to handle the encryption and decryption of a users Email and Username.
+    This script is to handle the encryption and decryption of a users Email,
+    This is done to keep the users sensitive data safe while it is stored in the Database
 
     The encryption used is AES-256 it also uses a random Initalising vector for added protection
 */

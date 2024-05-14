@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('./app'); // Path to your Express app file
+const app = require('../app'); // Path to your Express app file
 
 describe('POST /send-email', () => {
     it('should send an email', async () => {

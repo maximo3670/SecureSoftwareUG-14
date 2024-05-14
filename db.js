@@ -1,7 +1,6 @@
 require('dotenv').config({ path: './db.env' });
 const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
-const crypto = require('crypto');
 const encryption = require('./encryption')
 
 //Database values. Can be different depending on what you chose when
@@ -97,11 +96,15 @@ Utilises the Bycrpt hashing function and uses a salt number as 10
 async function registerUser({ Username, Password, Firstname, Lastname, Email}) {
   try {
 
+    //master encryption key is stored in 
     const encryptKey = process.env.MASTER_KEY;
 
+    //console commands used during the intergration of encryption.js
+    /*
     console.log(Username);
     console.log(Email);
     console.log(encryptKey);
+    */
 
     //takes in the supplied emails and encrypts them 
     const {encryptedEmail, iv } = await encryption.encryptEmail(Email, encryptKey);
@@ -110,7 +113,6 @@ async function registerUser({ Username, Password, Firstname, Lastname, Email}) {
     const existingUserQuery = 'SELECT 1 FROM securesoftware.users WHERE username = $1';
     const existingUser = await pool.query(existingUserQuery, [Username]);
 
-    
     if (existingUser.rowCount > 0) {
       // If a user is found, throw an error
       throw new Error('Username or email already exists.');
