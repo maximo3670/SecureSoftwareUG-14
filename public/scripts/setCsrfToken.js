@@ -1,4 +1,17 @@
+/*
+setCsrfToken.js
+
+Author: Jonathan Belt
+Date created: 21/04/2024
+Description: 
+    
+The purpose of this script is to set a csrf token on any page with a form. This token is then used to 
+verify the integrity of the form.
+*/
+
+
 document.addEventListener("DOMContentLoaded", function() {
+  //Creates a new token
   fetch('/csrf-token')
     .then(response => {
       if (!response.ok) {
@@ -6,6 +19,8 @@ document.addEventListener("DOMContentLoaded", function() {
       }
       return response.json();
     })
+    //Creates a hidden element in the form
+    //This includes the csrf token
     .then(data => {
       const forms = document.querySelectorAll('form');
       forms.forEach(form => {
@@ -13,7 +28,6 @@ document.addEventListener("DOMContentLoaded", function() {
         input.type = 'hidden';
         input.name = '_csrf'; 
         input.value = data.csrfToken;
-        console.log(input);
         form.appendChild(input);
       });
     })

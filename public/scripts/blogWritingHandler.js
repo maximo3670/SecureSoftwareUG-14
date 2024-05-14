@@ -1,3 +1,14 @@
+/*
+blogWritingHandler.js
+
+Author: Max Neil
+Date created: 13/04/2024
+Description: 
+    
+This file manages the writing of the blog posts. It requires a user to be logged in to write a blog.
+*/
+
+//Ran when form is submitted
 document.getElementById("blog").addEventListener("submit", function(event){
     event.preventDefault(); 
   

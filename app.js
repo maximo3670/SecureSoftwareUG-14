@@ -1,18 +1,18 @@
 /*
 App.js
 
-Author: Max Neil
+Author: Max Neil, Jonathan Belt, Mitchell Layzell
 Created: 21/03/2024
 Description: 
     This script is to handle all nodeJs queries such as Get requests for the website
     It handles changing webpages and SQL database queries.
 
     make sure nodeJs is installed in your computer.
-    To start the server type in console "npm start". 
 
     The webpage can be found on http://localhost:${port} where port is set to 3000 by default.
 */
 
+//Getting packages
 const express = require('express');
 const { registerUser, getBlogById, loginUser, writeBlog, readBlogs, getUserId, userBlogs, updateBlogText, deleteBlog, getEmail } = require('./db');
 const cookieParser = require('cookie-parser');
@@ -23,30 +23,37 @@ const uuidv4 = require('uuid').v4;
 const csrf = require('csurf');
 const sessions = {};
 require('dotenv').config({ path: './email.env' });
-// DOM Purification
 const { JSDOM } = require('jsdom');
 const window = (new JSDOM('')).window;
 const DOMPurify = require('dompurify')(window);
-
 const app = express();
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true })); 
 
-app.use(express.json()); // Built-in middleware for JSON
-app.use(express.urlencoded({ extended: true })); // Built-in middleware to handle URL encoded data
-
-
+//DDoS Protection
 // Apply rate limiting to all requests
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 300 // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000, // 15 mins
+  max: 300 // limit each IP to 300 requests per 15 mins
 });
 app.use(limiter);
 
 // CSRF Protection
 const csrfProtection = csrf({ cookie: true });
-app.use(cookieParser()); // To parse cookies
-app.use(csrfProtection); // CSRF protection after cookie parsing
-app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
+app.use(cookieParser()); 
+app.use(csrfProtection); 
 
+app.use(express.static(path.join(__dirname, 'public'))); 
+
+function checkSession(req, res, next) {
+  const sessionId = req.cookies ? req.cookies.session : undefined;
+
+  if (sessionId && sessions[sessionId]) {
+    next();
+  } else {
+    res.status(401).json({ success: false, message: "This action requires you to be logged in." });
+  }
+}
 
 /*
 This post request is for registering a new user. It gets the information from the 
@@ -63,7 +70,6 @@ otherwise it runs a function within the db.js script which writes to the databas
 if the function is successful it sends a success message back. otherwise it sends an error
 message back. Specifically if a username or password dont exist
 */
-
 function validatePassword(password) {
   // This is a regex (regular expression) to check requirements of a password
   // checks for minimum eight characters, at least one letter, one number and one special character
@@ -71,25 +77,11 @@ function validatePassword(password) {
   return regex.test(password);
 }
 
-function checkSession(req, res, next) {
-  const sessionId = req.cookies ? req.cookies.session : undefined;
-
-  console.log("SessionID: ", sessionId);
-  console.log("Sessions:", sessions);
-
-  if (sessionId && sessions[sessionId]) {
-    console.log("UserID: ", sessions[sessionId].UserID);
-    next();
-  } else {
-    res.status(401).json({ success: false, message: "This action requires you to be logged in." });
-  }
-}
-
 app.post('/register', csrfProtection, async (req, res) => {
   //Getting the information from the form
   let { Username, Password, ConfirmPassword, Firstname, Lastname, Email } = req.body;
 
-  //XSS protection
+  //XSS protection sanitizing the inputs
   Username = DOMPurify.sanitize(Username);
   Password = DOMPurify.sanitize(Password);
   ConfirmPassword = DOMPurify.sanitize(ConfirmPassword);
@@ -124,20 +116,25 @@ app.post('/register', csrfProtection, async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
 }});
 
-app.post('/writeblog', csrfProtection, checkSession, async (req, res) => {    //checkSession ran
+/* 
+/writeblog
+
+This request is for when a user attempts to write a new blog post
+
+It has csrf protection and login protection. meaning you must be logged in to write a post
+*/
+app.post('/writeblog', csrfProtection, checkSession, async (req, res) => { 
 
   let { title, text } = req.body;
 
+  //getting the logged in users ID
   const sessionId = req.cookies ? req.cookies.session : undefined;
-
-  console.log("SessinID:", sessionId)
 
   //XSS protection
   title = DOMPurify.sanitize(title);
   text = DOMPurify.sanitize(text);
 
-  console.log({ title: title, text: text, UserID: sessions[sessionId].UserID })
-
+  //attempts to put blog in the database
   try {
     await writeBlog({ userID: sessions[sessionId].UserID, title: title, text: text });
     res.status(201).json({ success: true, message: "Blog uploaded." });
@@ -147,6 +144,13 @@ app.post('/writeblog', csrfProtection, checkSession, async (req, res) => {    //
 }
 })
 
+/* 
+/login
+
+  Request is ran when the user attempts to login to the webpage
+  contains account enumeration security and XSS security
+
+*/
 const delay = (duration) => new Promise(resolve => setTimeout(resolve, duration));
 
 app.post('/login', csrfProtection, async (req, res) => {
@@ -179,13 +183,13 @@ app.post('/login', csrfProtection, async (req, res) => {
       maxAge: 300000 // Expires after 5 minutes of idle time
     });
 
+    // Calculate remaining delay
     const elapsedTime = Date.now() - startTime;
     const fixedDelay = 1000; 
     if (elapsedTime < fixedDelay) {
       await delay(fixedDelay - elapsedTime);
     }
 
-    //console.log(sessionId)  //debugging to verify if sessionID is the same as the cookie in browser
     res.status(200).json({ 
       success: true, 
       message: "Login successful!", 
@@ -280,7 +284,9 @@ app.post('/updateBlog', checkSession, csrfProtection, async (req, res) => {
 });
 
 app.post('/send-email', async (req, res) => {
-  const { Username, subject, text, html } = req.body;
+  let { Username, subject, text, html } = req.body;
+
+  Username = DOMPurify.sanitize(Username);
 
   try {
     // Fetch the recipient email address
@@ -351,7 +357,7 @@ app.get('/getBlog/:blogid', csrfProtection, async (req, res) => {
   }
 });
 
-app.get('/csrf-token', csrfProtection, (req, res) => {
+app.get('/csrf-token', (req, res) => {
   res.json({ csrfToken: req.csrfToken() });
 });
 

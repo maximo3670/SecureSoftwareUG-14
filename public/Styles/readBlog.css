@@ -71,3 +71,21 @@
 .blog-entry a:hover {
     text-decoration: underline; 
 }
+
+.blog-entry button{
+    width: 100px;
+  height: 15px;
+  padding: 15px; /* Remove padding to prevent extra space */
+  margin: 0 auto; /* Center horizontally */
+  position: relative;
+  border-radius: 10px;
+  border: 3px solid var(--sec)!important;
+  box-shadow: 0 0 0 1px #4d4d4d;
+  font-size: inherit; /* Maintain the button's font size */
+  text-align: center; /* Center the text horizontally */
+  font-weight: bolder;
+  line-height: 1px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-right: 10px;
+}

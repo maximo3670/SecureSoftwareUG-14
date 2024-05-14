@@ -1,7 +1,7 @@
 /*
 registrationHandler.js
 
-Author: Jonthan Belt, Max Neil
+Author: Jonthan Belt, Max Neil, Mitchell Layzell
 Date created: 21/03/2024
 Description: 
     
@@ -11,6 +11,10 @@ Then, it sends this information to the server using a special technique called F
 Once the server responds, the code checks if the login was successful. If it was, it tells the user they've successfully logged in and takes them to the main page.
 If there's an issue, like a wrong password or a server error, it lets the user know what went wrong.
 This code ensures that users get clear messages about their login attempts.
+
+This script also contains a maximum number of failed login attempts to prevent brute force attacks
+
+Handles 2Fa and OTP generation, for extra authentication.
 */
 
 let storedOTP;
@@ -31,7 +35,7 @@ function initializePage() {
  
   // Check if the lockout has expired
   if (lockoutData.attempts >= maxAttempts && !isLockoutExpired(lockoutData)) {
-      document.getElementById("feedbackMessage").textContent = "You have temporarily locked out. Come back later";
+      document.getElementById("feedbackMessage").textContent = "You have been temporarily locked out. Come back later";
       document.getElementById("submit").style.display = "none"; // Fixing this, 'none' should be a string
   }
   if(isLockoutExpired(lockoutData)){
@@ -85,7 +89,7 @@ document.getElementById("login").addEventListener("submit", function(event) {
  
    
     if (lockoutData.attempts >= maxAttempts && !isLockoutExpired(lockoutData)) {
-        document.getElementById("feedbackMessage").textContent = "You have temporarily locked out. Come back later";
+        document.getElementById("feedbackMessage").textContent = "You have been temporarily locked out. Come back later";
         document.getElementById("submit").style.display = "none"; // Fixing this, 'none' should be a string
 
     }
@@ -154,7 +158,7 @@ document.getElementById("login").addEventListener("submit", function(event) {
                 lockoutData.attempts++;
                 lockoutData.timestamp = Date.now();
                 localStorage.setItem("loginLockout", JSON.stringify(lockoutData));
-                document.getElementById("feedbackMessage").textContent = "Login failed. Please try again.";
+                document.getElementById("feedbackMessage").textContent = "Either username or password are incorrect";
             }
         });
     }
