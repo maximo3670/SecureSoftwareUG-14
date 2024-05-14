@@ -1,16 +1,6 @@
-const assert = require('assert');
 const request = require('supertest');
 const app = require('../app');
-
-/*
-2FA.test.js
-
-Author: Mitchell Layzell
-Created: 14/05/2024
-Description:
-This is a test script to determine if the web application will send emails to a reciepient.
-It also generates a 3 digit code that will be used in the emails for loginHandler.js
-*/
+const assert = require('assert');
 
 describe('Email 2FA Tests', function() {
     let csrfToken, cookie, storedOTP;
