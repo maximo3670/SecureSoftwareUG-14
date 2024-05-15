@@ -173,7 +173,7 @@ async function getUserId({Username}) {
   try {
     const result = await pool.query(`SELECT id FROM secureSoftware.users WHERE username = $1`, [Username]);
     if (result.rows.length > 0){
-      return result.rows[0].id; // Assuming there's only one user with a given username
+      return result.rows[0].id; 
     }else{
       return null;
     }

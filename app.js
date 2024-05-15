@@ -172,7 +172,9 @@ app.post('/login', csrfProtection, async (req, res) => {
     const sessionId = uuidv4();
 
     //Grabs user ID from database
-    const UserID = await getUserId(Username);
+    const UserID = await getUserId({Username});
+
+    console.log("UserID" + UserID);
 
     sessions[sessionId] = { Username, UserID };
 
