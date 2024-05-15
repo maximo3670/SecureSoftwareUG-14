@@ -55,7 +55,7 @@ describe('XSS Attack Prevention Tests', function() {
             .set('Cookie', cookie)
             .set('CSRF-Token', csrfToken)
             .send({
-                Username: "XSStestUser<script>alert('xss');</script>",
+                Username: "Max<script>alert('xss');</script>",
                 Password: "ValidPassword1!",
                 ConfirmPassword: "ValidPassword1!",
                 Firstname: "<script>alert('xss');</script>",
