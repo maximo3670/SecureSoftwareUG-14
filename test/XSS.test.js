@@ -62,8 +62,7 @@ describe('XSS Attack Prevention Tests', function() {
                 Lastname: "<script>alert('xss');</script>",
                 Email: "XSStestUser@example.com<script>"
             });
-            console.log("=============================================================")
-            console.log(response.body.message);
+
             assert.strictEqual(response.status, 409, 'Expected failure due to duplicate username');
             assert.match(response.body.message, /Username already exists./, 'Expected error message about duplicate username or email');
     });

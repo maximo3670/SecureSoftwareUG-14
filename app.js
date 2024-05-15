@@ -109,7 +109,8 @@ app.post('/register', csrfProtection, async (req, res) => {
   } catch (err) {
 
     //Catches any error if any occur and sends a feedback message
-    if (err.message === 'Username or email already exists.') {
+    console.log(err.message);
+    if (err.message === 'Username already exists.') {
       return res.status(409).json({ success: false, message: err.message });
     }
     console.error(err);
@@ -173,8 +174,6 @@ app.post('/login', csrfProtection, async (req, res) => {
 
     //Grabs user ID from database
     const UserID = await getUserId({Username});
-
-    console.log("UserID" + UserID);
 
     sessions[sessionId] = { Username, UserID };
 
