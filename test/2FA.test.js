@@ -51,7 +51,6 @@ describe('Email 2FA Tests', function() {
                     .set('Cookie', cookie); // Set the session cookie
     
                 assert.strictEqual(res.status, 200, 'Response status should be 200');
-                assert.property(res.body, 'message');
                 assert.strictEqual(res.body.message, 'Email sent successfully', 'Response message should indicate successful email sending');
             } catch(error) {
                 assert.fail(`Email did not send: ${error.message}`);
