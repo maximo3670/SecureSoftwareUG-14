@@ -1,6 +1,7 @@
 require('dotenv').config({ path: './db.env' });
 const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
+const encryption = require('./encryption')
 
 //Database values. Can be different depending on what you chose when
 //downloading postgres. Edit them in db.env to your own values
@@ -45,7 +46,8 @@ async function initializeDb() {
             first_name VARCHAR(255) NOT NULL,
             last_name VARCHAR(255) NOT NULL,
             email VARCHAR(255) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL
+            password VARCHAR(255) NOT NULL,
+            email_iv VARCHAR(255) NOT NULL
           );
         `;
     
@@ -90,15 +92,30 @@ Password hashing and salting is done here.
 Utilises the Bycrpt hashing function and uses a salt number as 10
 
 */
-async function registerUser({ Username, Password, Firstname, Lastname, Email }) {
+
+async function registerUser({ Username, Password, Firstname, Lastname, Email}) {
   try {
+
+    //master encryption key is stored in 
+    const encryptKey = process.env.MASTER_KEY;
+
+    //console commands used during the intergration of encryption.js
+    /*
+    console.log(Username);
+    console.log(Email);
+    console.log(encryptKey);
+    */
+
+    //takes in the supplied emails and encrypts them 
+    const {encryptedEmail, iv } = await encryption.encryptEmail(Email, encryptKey);
+
     // Check if username or email already exists
-    const existingUserQuery = 'SELECT 1 FROM securesoftware.users WHERE username = $1 OR email = $2;';
-    const existingUser = await pool.query(existingUserQuery, [Username, Email]);
+    const existingUserQuery = 'SELECT 1 FROM securesoftware.users WHERE username = $1';
+    const existingUser = await pool.query(existingUserQuery, [Username]);
 
     if (existingUser.rowCount > 0) {
       // If a user is found, throw an error
-      throw new Error('Username or email already exists.');
+      throw new Error('Username already exists.');
     }
 
     // Hashing the password with Bycrypt
@@ -107,8 +124,8 @@ async function registerUser({ Username, Password, Firstname, Lastname, Email }) 
     const hashedPassword = await bcrypt.hash(Password, salt);
 
     //Inserting the data into the database
-    const insertQuery = 'INSERT INTO securesoftware.users(username, first_name, last_name, email, password) VALUES($1, $2, $3, $4, $5) RETURNING *;';
-    const user = await pool.query(insertQuery, [Username, Firstname, Lastname, Email, hashedPassword]);
+    const insertQuery = 'INSERT INTO securesoftware.users(username, first_name, last_name, email, password, email_iv) VALUES($1, $2, $3, $4, $5, $6) RETURNING *;';
+    const user = await pool.query(insertQuery, [Username, Firstname, Lastname, encryptedEmail, hashedPassword, iv]);
 
     return user.rows[0];
   } catch (err) {
@@ -121,8 +138,9 @@ async function registerUser({ Username, Password, Firstname, Lastname, Email }) 
 //jon
 async function loginUser({ Username, Password }) {
   try {
-    // Assume Username can be either a username or an email for login purposes
-    const userQuery = 'SELECT * FROM securesoftware.users WHERE username = $1 OR email = $1;';
+
+    // Assume Username for the login purposes
+    const userQuery = 'SELECT * FROM securesoftware.users WHERE username = $1;';
     const userResult = await pool.query(userQuery, [Username]);
 
     if (userResult.rowCount > 0) {
@@ -132,7 +150,11 @@ async function loginUser({ Username, Password }) {
       if (isMatch) {
         // Passwords match
         console.log("Login Sucesful");
-        return { success: true, message: "Login successful!", user: { Username: user.username, Email: user.email } };
+        //decrypt the stored email
+        const decryptedEmail = await encryption.decryptEmail(user.email, process.env.MASTER_KEY, user.email_iv);
+        console.log(decryptedEmail);
+        return { success: true, message: "Login successful!", user: { Username, Email: decryptedEmail} };
+        
       } else {
         // Passwords do not match
         throw new Error('Username or password does not match.');
@@ -147,10 +169,15 @@ async function loginUser({ Username, Password }) {
   }
 }
 
-async function getUserId(username) {
+async function getUserId({Username}) {
   try {
-    const result = await pool.query(`SELECT id FROM secureSoftware.users WHERE username = $1`, [username]);
-    return result.rows[0].id; // Assuming there's only one user with a given username
+    const result = await pool.query(`SELECT id FROM secureSoftware.users WHERE username = $1`, [Username]);
+    if (result.rows.length > 0){
+      return result.rows[0].id; 
+    }else{
+      return null;
+    }
+    
   } catch (error) {
     throw new Error(`Error getting user ID: ${error.message}`);
   }
@@ -263,28 +290,33 @@ async function readBlogs(searchQuery) {
   }
 }
 
-async function getEmail(Username) {
+async function getEmail({Username}) {
   try {
       // Query to fetch email based on username
       console.log(Username);
       const query = {
-          text: `SELECT email FROM securesoftware.users WHERE username = $1`,
+          text: `SELECT email, email_iv FROM securesoftware.users WHERE username = $1`,
           values: [Username],
       };
 
       const result = await pool.query(query);
 
       if (result.rows.length > 0) {
-          // If a user with the given username exists, return their email
-          return result.rows[0].email;
-      } else {
+        // If a user with the given username exists, retrieve their email and IV
+        const {email, email_iv} = result.rows[0];
+
+        const decryptedEmail = await encryption.decryptEmail(email, process.env.MASTER_KEY, email_iv);
+        // If a user with the given username exists, return their email
+        return decryptedEmail;   
+      } 
+      else {
           // If no user with the given username exists, return null
           return null;
       }
-  } catch (error) {
+    } catch (error) {
       console.error('Error retrieving user email:', error);
       return null;
-  }
+    }
 }
 
 

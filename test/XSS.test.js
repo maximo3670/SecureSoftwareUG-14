@@ -62,8 +62,9 @@ describe('XSS Attack Prevention Tests', function() {
                 Lastname: "<script>alert('xss');</script>",
                 Email: "XSStestUser@example.com<script>"
             });
-            assert.strictEqual(response.status, 409, 'Expected failure due to duplicate username or email');
-            assert.match(response.body.message, /Username or email already exists/, 'Expected error message about duplicate username or email');
+
+            assert.strictEqual(response.status, 409, 'Expected failure due to duplicate username');
+            assert.match(response.body.message, /Username already exists./, 'Expected error message about duplicate username or email');
     });
 
     it('should prevent XSS in blog writing with CSRF token', async function() {

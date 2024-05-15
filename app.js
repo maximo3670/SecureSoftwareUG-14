@@ -121,7 +121,8 @@ app.post('/register', csrfProtection, async (req, res) => {
   } catch (err) {
 
     //Catches any error if any occur and sends a feedback message
-    if (err.message === 'Username or email already exists.') {
+    console.log(err.message);
+    if (err.message === 'Username already exists.') {
       return res.status(409).json({ success: false, message: err.message });
     }
     console.error(err);
@@ -184,7 +185,7 @@ app.post('/login', csrfProtection, async (req, res) => {
     const sessionId = uuidv4();
 
     //Grabs user ID from database
-    const UserID = await getUserId(Username);
+    const UserID = await getUserId({Username});
 
     sessions[sessionId] = { Username, UserID };
 
@@ -303,7 +304,9 @@ app.post('/send-email', async (req, res) => {
 
   try {
     // Fetch the recipient email address
-    const recipientEmail = await getEmail(Username);
+    const recipientEmail = await getEmail({Username});
+
+    console.log(recipientEmail);
 
     if (!recipientEmail) {
       console.error('Error: No email available for the provided username');

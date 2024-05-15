@@ -2,22 +2,7 @@ const assert = require('assert');
 const request = require('supertest');
 const server = require('../app');
 
-/*
-login.test.js
-
-Author: Max Neil
-Created: 12/05/2024
-Description:
-This is a test script written to test the login system of the website
-
-It tests:
-1. Correct login details
-2. Incorrect login details
-3. Account enumeration timing
-
-*/
-
-describe('Login Tests', function() {
+describe('Login Tests with CSRF Protection', function() {
     let csrfToken, cookie;
 
     // Fetch CSRF token and session cookie before running tests
@@ -38,8 +23,10 @@ describe('Login Tests', function() {
                 response = await request(server)
                     .post('/login')
                     .set('Cookie', cookie)
-                    .send({ Username: 'Max', Password: 'Password123!', _csrf: csrfToken });
+                    .set('CSRF-Token', csrfToken)
+                    .send({ Username: 'Max', Password: 'Password123!' });
                 
+                console.log(response.body);
                 assert.strictEqual(response.status, 200, 'Failed to log in with correct credentials');
                 assert.strictEqual(response.body.message, 'Login successful!', 'Unexpected response message');
             } catch (error) {
@@ -57,7 +44,7 @@ describe('Login Tests', function() {
                     .post('/login')
                     .set('Cookie', cookie)
                     .set('CSRF-Token', csrfToken)
-                    .send({ Username: 'NonexistingUser', Password: 'Password123!', _csrf: csrfToken  });
+                    .send({ Username: 'NonexistingUser', Password: 'Password123!' });
 
                 assert.strictEqual(response.status, 401, 'Incorrectly allowed login with wrong credentials');
                 assert.strictEqual(response.body.message, 'Username or password is incorrect.', 'Unexpected or missing error message');
@@ -80,7 +67,7 @@ describe('Login Tests', function() {
                     .post('/login')
                     .set('Cookie', cookie)
                     .set('CSRF-Token', csrfToken)
-                    .send({ Username: 'nonexistinguser', Password: 'password123', _csrf: csrfToken  });
+                    .send({ Username: 'nonexistinguser', Password: 'password123' });
             } catch (error) {
                 responseNonExisting = error.response;
             }
@@ -94,7 +81,7 @@ describe('Login Tests', function() {
                     .post('/login')
                     .set('Cookie', cookie)
                     .set('CSRF-Token', csrfToken)
-                    .send({ Username: 'Max', Password: 'wrongpassword', _csrf: csrfToken });
+                    .send({ Username: 'Max', Password: 'wrongpassword' });
             } catch (error) {
                 responseExisting = error.response;
             }
