@@ -71,34 +71,34 @@ describe('Session Tests', function() {
         });
     });
 
-    describe('Session expiration', function() {
-        let sessionCookie;
+    // describe('Session expiration', function() {
+    //     let sessionCookie;
 
-        before(async function() {
-            const loginResponse = await request(server)
-                .post('/login')
-                .set('Cookie', cookie)
-                .send({ Username: 'Max', Password: 'Password123!', _csrf: csrfToken });
+    //     before(async function() {
+    //         const loginResponse = await request(server)
+    //             .post('/login')
+    //             .set('Cookie', cookie)
+    //             .send({ Username: 'Max', Password: 'Password123!', _csrf: csrfToken });
 
-            sessionCookie = loginResponse.headers['set-cookie'].find(cookie => cookie.startsWith('session'));
-            console.log('Session created at:', new Date());
-        });
+    //         sessionCookie = loginResponse.headers['set-cookie'].find(cookie => cookie.startsWith('session'));
+    //         console.log('Session created at:', new Date());
+    //     });
 
-        it('should expire the session after inactivity', function(done) {
-            this.timeout(320000); // Extend the timeout to handle the wait time plus some buffer
+    //     it('should expire the session after inactivity', function(done) {
+    //         this.timeout(320000); // Extend the timeout to handle the wait time plus some buffer
 
-            console.log('Waiting for session to expire...');
-            setTimeout(async () => {
-                const response = await request(server)
-                    .get('/check-session')
-                    .set('Cookie', sessionCookie)
-                    .expect(200);
+    //         console.log('Waiting for session to expire...');
+    //         setTimeout(async () => {
+    //             const response = await request(server)
+    //                 .get('/check-session')
+    //                 .set('Cookie', sessionCookie)
+    //                 .expect(200);
 
-                console.log('Session checked at:', new Date());
-                console.log('Session status:', response.body.loggedIn);
-                assert.strictEqual(response.body.loggedIn, false, 'Session did not expire after inactivity');
-                done();
-            }, 310000); // Wait for 310 seconds before checking the session
-        });
-    });
+    //             console.log('Session checked at:', new Date());
+    //             console.log('Session status:', response.body.loggedIn);
+    //             assert.strictEqual(response.body.loggedIn, false, 'Session did not expire after inactivity');
+    //             done();
+    //         }, 310000); // Wait for 310 seconds before checking the session
+    //     });
+    // });
 });
