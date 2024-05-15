@@ -343,7 +343,7 @@ app.post('/send-email', async (req, res) => {
         return res.status(500).json({ success: false, error: 'Failed to send email', details: error });
       } else {
         console.log('Email sent:', info.response);
-        return res.json({ success: true });
+        return res.json({ success: true, message: 'Email sent successfully' });
       }
     });
   } catch (error) {
