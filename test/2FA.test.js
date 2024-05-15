@@ -41,16 +41,18 @@ describe('Email 2FA Tests', function() {
                 const res = await request(app)
                     .post('/send-email') //Calls the send-email function from app
                     .send({ //Creating email data 
-                        to: 'mitch2003@icloud.com', //Using my personal email to guarantee that I have received an email
+                        Username: 'Max', 
                         subject: 'This test was successful',
+                        text:'',
                         html: `<h1>Test Content</h1>
-                        <h1>${storedOTP}</h1>`
+                        <h1>${storedOTP}</h1>`,
+                        _csrf: csrfToken
                     })
                     .set('Cookie', cookie); // Set the session cookie
-
-                assert.equal(res.status, 200, 'Response status should be 200');
+    
+                assert.strictEqual(res.status, 200, 'Response status should be 200');
                 assert.property(res.body, 'message', 'Response body should contain message property');
-                assert.equal(res.body.message, 'Email sent successfully', 'Response message should indicate successful email sending');
+                assert.strictEqual(res.body.message, 'Email sent successfully', 'Response message should indicate successful email sending');
             } catch(error) {
                 assert.fail(`Email did not send: ${error.message}`);
             }
