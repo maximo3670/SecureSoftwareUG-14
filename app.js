@@ -49,6 +49,16 @@ function checkSession(req, res, next) {
   const sessionId = req.cookies ? req.cookies.session : undefined;
 
   if (sessionId && sessions[sessionId]) {
+    const session = sessions[sessionId];
+    const now = Date.now();
+
+    // Check if the session has expired
+    if (now > session.expiry) {
+      delete sessions[sessionId];
+      res.clearCookie('session');
+      return res.status(401).json({ success: false, message: "Session has expired." });
+    }
+
     next();
   } else {
     res.status(401).json({ success: false, message: "This action requires you to be logged in." });
@@ -70,6 +80,7 @@ otherwise it runs a function within the db.js script which writes to the databas
 if the function is successful it sends a success message back. otherwise it sends an error
 message back. Specifically if a username or password dont exist
 */
+
 function validatePassword(password) {
   // This is a regex (regular expression) to check requirements of a password
   // checks for minimum eight characters, at least one letter, one number and one special character
@@ -79,6 +90,7 @@ function validatePassword(password) {
 
 app.post('/register', csrfProtection, async (req, res) => {
   //Getting the information from the form
+
   let { Username, Password, ConfirmPassword, Firstname, Lastname, Email } = req.body;
 
   //XSS protection sanitizing the inputs
@@ -114,7 +126,7 @@ app.post('/register', csrfProtection, async (req, res) => {
     }
     console.error(err);
     res.status(500).json({ success: false, message: "Server error" });
-}});
+  }});
 
 /* 
 /writeblog
@@ -185,7 +197,7 @@ app.post('/login', csrfProtection, async (req, res) => {
 
     // Calculate remaining delay
     const elapsedTime = Date.now() - startTime;
-    const fixedDelay = 1000; 
+    const fixedDelay = 1000;
     if (elapsedTime < fixedDelay) {
       await delay(fixedDelay - elapsedTime);
     }
@@ -253,15 +265,15 @@ app.post('/deleteBlog', checkSession, csrfProtection,async (req, res) => {
   const { blogid } = req.body;
 
   try {
-      if (!blogid) {
-          return res.status(400).json({ success: false, message: 'Blog ID must be provided.' });
-      }
+    if (!blogid) {
+      return res.status(400).json({ success: false, message: 'Blog ID must be provided.' });
+    }
 
-      await deleteBlog({ blogid });
-      res.json({ success: true, message: 'Blog successfully deleted.' });
+    await deleteBlog({ blogid });
+    res.json({ success: true, message: 'Blog successfully deleted.' });
   } catch (err) {
-      console.error(err);
-      res.status(500).json({ success: false, message: 'Failed to delete blog.' });
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Failed to delete blog.' });
   }
 });
 
@@ -349,10 +361,10 @@ app.get('/getBlog/:blogid', csrfProtection, async (req, res) => {
       if (!blog) {
           return res.status(404).json({ success: false, message: 'Blog not found.' });
       }
-      res.json(blog);
+    res.json(blog);
   } catch (err) {
-      console.error('Failed to retrieve blog:', err);
-      res.status(500).json({ success: false, message: 'Server error.' });
+    console.error('Failed to retrieve blog:', err);
+    res.status(500).json({ success: false, message: 'Server error.' });
   }
 });
 
@@ -364,6 +376,7 @@ app.get('/check-session', (req, res) => {
   const loggedIn = req.cookies && req.cookies.session && sessions[req.cookies.session];
   res.json({ loggedIn: loggedIn });
 });
+
 
 app.get('/account/updateBlog', checkSession, csrfProtection, (req, res) => {
   res.sendFile(path.join(__dirname, 'public/pages/updateBlog.html'));
@@ -377,7 +390,7 @@ app.get('/blogs',  csrfProtection, (req, res) => {
   res.sendFile(path.join(__dirname, 'public/pages/blogs.html'));
 });
 
-app.get('/writeblog', csrfProtection, (req, res) => {
+app.get('/writeblog', checkSession, csrfProtection, (req, res) => {
   res.sendFile(path.join(__dirname, 'public/pages/writeblog.html'));
 });
 
