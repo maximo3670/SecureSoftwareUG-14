@@ -20,7 +20,6 @@ It tests:
 describe('Session Tests', function() {
     let csrfToken, cookie;
 
-    // Fetch CSRF token and session cookie before running tests
     before(async function() {
         const tokenResponse = await request(server)
             .get('/csrf-token')
@@ -72,7 +71,6 @@ describe('Session Tests', function() {
         });
     });
 
-
     // describe('Session expiration', function() {
     //     let sessionCookie;
 
@@ -86,20 +84,21 @@ describe('Session Tests', function() {
     //         console.log('Session created at:', new Date());
     //     });
 
-    //     it('should expire the session after inactivity', async function() {
-    //         this.timeout(310000); // Extend timeout for the test
+    //     it('should expire the session after inactivity', function(done) {
+    //         this.timeout(320000); // Extend the timeout to handle the wait time plus some buffer
 
     //         console.log('Waiting for session to expire...');
-    //         await new Promise(resolve => setTimeout(resolve, 310000));
+    //         setTimeout(async () => {
+    //             const response = await request(server)
+    //                 .get('/check-session')
+    //                 .set('Cookie', sessionCookie)
+    //                 .expect(200);
 
-    //         const response = await request(server)
-    //             .get('/check-session')
-    //             .set('Cookie', sessionCookie)
-    //             .expect(200);
-
-    //         console.log('Session checked at:', new Date());
-    //         console.log('Session status:', response.body.loggedIn);
-    //         assert.strictEqual(response.body.loggedIn, false, 'Session did not expire after inactivity');
+    //             console.log('Session checked at:', new Date());
+    //             console.log('Session status:', response.body.loggedIn);
+    //             assert.strictEqual(response.body.loggedIn, false, 'Session did not expire after inactivity');
+    //             done();
+    //         }, 310000); // Wait for 310 seconds before checking the session
     //     });
     // });
 });

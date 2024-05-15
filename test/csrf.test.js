@@ -19,11 +19,11 @@ It tests:
 describe('CSRF Protection Tests', function() {
     let csrfToken, cookie;
 
-    // Fetch CSRF token and session cookie before running tests
+    //Gets CSRF token and session cookie before running tests
     before(async function() {
         const tokenResponse = await request(server)
             .get('/csrf-token')
-            .expect(200);  // Ensure the request succeeds
+            .expect(200);  //Ensures this request succeeds
 
         csrfToken = tokenResponse.body.csrfToken;
         cookie = tokenResponse.headers['set-cookie'].map(cookie => cookie.split(';')[0]).join(';');
