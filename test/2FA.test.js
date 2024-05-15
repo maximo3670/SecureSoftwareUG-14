@@ -28,10 +28,11 @@ describe('Email 2FA Tests', function() {
     describe('Generating a 6 digit code to be used for the email', function() {
         it('Should generate a randomised 6 digit password for a user to use.', function(){
             storedOTP = Math.floor(Math.random() * 900000) + 100000;
-            assert.isNumber(storedOTP, 'OTP should be a number');
-            assert.isAtLeast(storedOTP, 100000, 'OTP should be at least 100000');
-            assert.isBelow(storedOTP, 1000000, 'OTP should be less than 1000000');
-        });
+            assert.strictEqual(typeof storedOTP, 'number', 'OTP should be a number');
+            assert.ok(Number.isInteger(storedOTP), 'OTP should be an integer');
+            assert.ok(storedOTP >= 100000, 'OTP should be at least 100000');
+            assert.ok(storedOTP < 1000000, 'OTP should be less than 1000000');
+        });        
     });
 
     describe('Send a test email', function(){
